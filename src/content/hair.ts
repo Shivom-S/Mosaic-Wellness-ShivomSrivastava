@@ -30,7 +30,6 @@ function evaluate({ answers, count }: CheckInput): Result {
   const patches = where === "patches";
   const pattern = where === "pattern";
   const scalpPain = scalp.includes("pain") || scalp.includes("red");
-  const scalpFlake = scalp.includes("itch");
   const high = n > NORMAL_MAX;
   const veryLong = duration === "verylong";
 
@@ -194,7 +193,7 @@ function trend(entries: DailyEntry[]): TrendResult {
     const c = Number(e.values.count ?? 0);
     return c <= NORMAL_MAX ? "good" : c <= 150 ? "meh" : "bad";
   }) as TrendResult["dots"];
-  const series = entries.map((e, i) => ({ label: String(i + 1), value: counts[i] }));
+  const series = counts.map((value, i) => ({ label: String(i + 1), value }));
   const reference = { value: NORMAL_MAX, label: "100 / day" };
 
   if (entries.length < 5) {
