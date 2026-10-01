@@ -37,7 +37,7 @@ export function AboutCheck({ worry, steps, step }: { worry: Worry; steps: number
 
       <p className="mt-5 flex items-start gap-2.5 rounded-2xl bg-surface-2 px-4 py-3 text-[13px] leading-snug text-ink-muted">
         <Lock className="mt-0.5 size-4 shrink-0 text-lamp" aria-hidden="true" />
-        Your answers stay on this device. No account, nothing sent anywhere.
+        Your answers stay on this device. No account, and your answers are never sent anywhere.
       </p>
     </aside>
   );

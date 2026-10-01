@@ -195,7 +195,7 @@ export function Result({ id }: { id: WorryId }) {
 
   const feedback = (
     <Section>
-      <Feedback worryId={id} />
+      <Feedback worryId={id} verdict={result.verdict} />
     </Section>
   );
 

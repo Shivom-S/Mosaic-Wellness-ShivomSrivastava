@@ -1,3 +1,4 @@
+import { Pulse } from "@/components/Pulse";
 import type { ReactNode } from "react";
 import { ArrowLeft, ExternalLink } from "lucide-react";
 import { Section } from "@/components/Section";
@@ -74,7 +75,7 @@ export function About() {
             ],
             [
               "Private by design.",
-              "No account, no analytics, nothing sent anywhere. Phones get shared, so there's a one-tap wipe.",
+              "No account and no analytics. Answers and counts never leave the phone. The only thing ever sent is an optional, anonymous \"did this help?\" rating, which feeds a live pulse. Phones get shared, so there's a one-tap wipe.",
             ],
             [
               "Cut on purpose:",
@@ -106,6 +107,7 @@ export function About() {
           system for categories. It's the only dashboard I'd want to build next, and only on real data.
         </p>
       </Block>
+      <Pulse className="mt-6" />
 
       <Block title="How AI helped" i={6}>
         <p>

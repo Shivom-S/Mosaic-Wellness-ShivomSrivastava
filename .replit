@@ -1,0 +1,10 @@
+modules = ["nodejs-20", "postgresql-16"]
+run = "cd server && npm install && npm start"
+
+[deployment]
+deploymentTarget = "autoscale"
+run = ["sh", "-c", "cd server && npm install && npm start"]
+
+[[ports]]
+localPort = 3000
+externalPort = 80

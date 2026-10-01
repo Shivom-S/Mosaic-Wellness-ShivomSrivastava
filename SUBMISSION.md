@@ -14,5 +14,6 @@
 
 **AI tools used:**
 - Claude: a 5-advisor "LLM council" to decide what to build, plus source research.
-- Claude Code: built the UI from my spec. The medical logic was written and tested first.
+- Claude Code: built the UI from my spec, then refined it against reviewer feedback. The medical logic was written and tested first.
+- Replit: hosts the small Express + PostgreSQL backend that powers the live, anonymous "did this help?" pulse.
 - Source: https://github.com/Shivom-S/Mosaic-Wellness-ShivomSrivastava

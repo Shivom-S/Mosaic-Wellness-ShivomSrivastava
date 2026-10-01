@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { Meh, ThumbsDown, ThumbsUp, type LucideIcon } from "lucide-react";
-import type { WorryId } from "@/content";
+import type { Verdict, WorryId } from "@/content";
+import { apiEnabled, sendRating } from "@/lib/api";
 import { keys, store } from "@/lib/storage";
 import { cn } from "@/lib/utils";
 
@@ -32,13 +33,14 @@ const chip = (on: boolean) =>
   );
 
 /** "Did this answer what you needed?" Saved to this phone only: nothing is sent anywhere. */
-export function Feedback({ worryId }: { worryId: WorryId }) {
+export function Feedback({ worryId, verdict }: { worryId: WorryId; verdict: Verdict }) {
   const [saved, setSaved] = useState<Saved | null>(() => store.get<Saved>(keys.feedback(worryId)));
 
   const save = (next: Saved) => {
     setSaved(next);
     store.set(keys.feedback(worryId), next);
-    toast("Thanks. Saved on this phone only, nothing is sent anywhere.");
+    sendRating({ worry: worryId, verdict, answer: next.answer, tone: next.tone });
+    toast(apiEnabled ? "Thanks. Only the rating and verdict type are sent, anonymously." : "Thanks. Saved on this phone only.");
   };
 
   return (
@@ -79,7 +81,11 @@ export function Feedback({ worryId }: { worryId: WorryId }) {
         </div>
       )}
 
-      <p className="mt-3.5 text-[12px] leading-snug text-ink-muted">Kept on this phone. Not sent to us or anyone else.</p>
+      <p className="mt-3.5 text-[12px] leading-snug text-ink-muted">
+        {apiEnabled
+          ? "Sends only this rating and the verdict type, anonymously. Never your answers or counts."
+          : "Kept on this phone. Not sent to us or anyone else."}
+      </p>
     </div>
   );
 }

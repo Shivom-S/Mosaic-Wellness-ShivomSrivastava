@@ -29,7 +29,8 @@ specialists actually use, and shows the source on every answer.
 | UI | React 19, TypeScript, Vite, Tailwind CSS 3, vaul drawer, Radix accordion/dialog, Sonner toasts |
 | Content + logic | `src/content/`: typed worry definitions, deterministic `evaluate()` and `trend()` functions, and the source registry. Every number in the app maps to an entry in `sources.ts`. |
 | Checks | `npx tsx scripts/check-content.ts` runs scenario tests over every verdict branch, the examples and the matcher |
-| Hosting | Static build on Vercel (`vercel.json`) |
+| Backend | `server/`: Express + PostgreSQL on Replit. It stores only anonymous "did this help?" ratings (worry type, verdict type, rating) and serves a live aggregate `/api/pulse`. It's optional: without `VITE_API_URL` the app runs fully offline. |
+| Hosting | Frontend on Vercel (`vercel.json`), API on Replit (`.replit`) |
 
 ```bash
 pnpm install

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { WORRIES, type WorryId } from "@/content";
 import { ExampleStrip } from "@/components/ExampleStrip";
 import { History, HowItWorks, Popular, StopTheSpiral } from "@/components/HomeSections";
+import { Pulse } from "@/components/Pulse";
 import { SayItBox } from "@/components/SayItBox";
 import { WorryCard } from "@/components/WorryCard";
 import { greeting, useNow } from "@/lib/clock";
@@ -75,6 +76,7 @@ export function Home() {
 
           <div className="animate-fade-up" style={stagger(8, 80)}>
             <History />
+            <Pulse />
           </div>
         </div>
       </div>
