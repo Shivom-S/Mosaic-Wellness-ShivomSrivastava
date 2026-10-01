@@ -1,0 +1,464 @@
+[
+ {
+  "id": "hair",
+  "title": "Hair in the drain",
+  "whisper": "Am I going bald?",
+  "questions": [
+   {
+    "id": "wash",
+    "prompt": "Did you wash your hair today?",
+    "multi": false,
+    "options": [
+     {
+      "id": "yes",
+      "label": "Yes, it was wash day"
+     },
+     {
+      "id": "no",
+      "label": "No"
+     }
+    ]
+   },
+   {
+    "id": "duration",
+    "prompt": "How long has it felt like this?",
+    "multi": false,
+    "options": [
+     {
+      "id": "short",
+      "label": "Less than 2 weeks"
+     },
+     {
+      "id": "months",
+      "label": "2 weeks – 3 months"
+     },
+     {
+      "id": "long",
+      "label": "3 – 6 months"
+     },
+     {
+      "id": "verylong",
+      "label": "More than 6 months"
+     }
+    ]
+   },
+   {
+    "id": "where",
+    "prompt": "Where does it seem to be coming from?",
+    "multi": false,
+    "options": [
+     {
+      "id": "diffuse",
+      "label": "All over, everywhere"
+     },
+     {
+      "id": "pattern",
+      "label": "Thinning at the hairline, crown or parting"
+     },
+     {
+      "id": "patches",
+      "label": "Round or patchy bald spots"
+     }
+    ]
+   },
+   {
+    "id": "trigger",
+    "prompt": "Anything big happen 2–4 months before it started?",
+    "multi": true,
+    "options": [
+     {
+      "id": "fever",
+      "label": "High fever / bad infection"
+     },
+     {
+      "id": "weight",
+      "label": "Crash diet or big weight loss"
+     },
+     {
+      "id": "surgery",
+      "label": "Surgery or hospital stay"
+     },
+     {
+      "id": "baby",
+      "label": "Had a baby"
+     },
+     {
+      "id": "stress",
+      "label": "Very stressful stretch"
+     },
+     {
+      "id": "pill",
+      "label": "Stopped birth-control pills"
+     },
+     {
+      "id": "none",
+      "label": "Nothing I can think of"
+     }
+    ]
+   },
+   {
+    "id": "scalp",
+    "prompt": "Anything going on with your scalp?",
+    "multi": true,
+    "options": [
+     {
+      "id": "itch",
+      "label": "Itching or flaking"
+     },
+     {
+      "id": "pain",
+      "label": "Pain or burning"
+     },
+     {
+      "id": "red",
+      "label": "Redness or sores"
+     },
+     {
+      "id": "none",
+      "label": "Nope, scalp's fine"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "cycle",
+  "title": "Period's late, again",
+  "whisper": "Is my cycle normal?",
+  "questions": [
+   {
+    "id": "stage",
+    "prompt": "Where are you in life, period-wise?",
+    "multi": false,
+    "options": [
+     {
+      "id": "early",
+      "label": "Less than ~3 years since my first period"
+     },
+     {
+      "id": "adult",
+      "label": "More than 3 years in"
+     },
+     {
+      "id": "forties",
+      "label": "I'm in my 40s or older"
+     }
+    ]
+   },
+   {
+    "id": "gap",
+    "prompt": "Usually, how many days from one period starting to the next?",
+    "multi": false,
+    "options": [
+     {
+      "id": "lt21",
+      "label": "Less than 21 days"
+     },
+     {
+      "id": "21to35",
+      "label": "21 – 35 days"
+     },
+     {
+      "id": "36to45",
+      "label": "36 – 45 days"
+     },
+     {
+      "id": "gt45",
+      "label": "More than 45 days"
+     },
+     {
+      "id": "none3m",
+      "label": "No period in 3+ months"
+     },
+     {
+      "id": "unknown",
+      "label": "No idea, it's all over the place"
+     }
+    ]
+   },
+   {
+    "id": "vary",
+    "prompt": "How much does that change from month to month?",
+    "multi": false,
+    "options": [
+     {
+      "id": "steady",
+      "label": "Pretty steady, within about a week"
+     },
+     {
+      "id": "varies",
+      "label": "Swings by more than 9 days"
+     },
+     {
+      "id": "unknown",
+      "label": "Not sure"
+     }
+    ]
+   },
+   {
+    "id": "other",
+    "prompt": "Anything else going on?",
+    "multi": true,
+    "options": [
+     {
+      "id": "soaking",
+      "label": "Soaking a pad/tampon every hour for 2–3 hrs"
+     },
+     {
+      "id": "long",
+      "label": "Bleeding more than 7 days"
+     },
+     {
+      "id": "between",
+      "label": "Bleeding between periods or after sex"
+     },
+     {
+      "id": "pain",
+      "label": "Pain that stops my normal day"
+     },
+     {
+      "id": "androgen",
+      "label": "Acne, extra facial/body hair or weight changes I can't explain"
+     },
+     {
+      "id": "pregnant",
+      "label": "There's a chance I'm pregnant"
+     },
+     {
+      "id": "none",
+      "label": "None of these"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "sleep",
+  "title": "Wide awake at 3 AM",
+  "whisper": "Why can't I sleep through the night?",
+  "questions": [
+   {
+    "id": "freq",
+    "prompt": "How often are you up in the middle of the night?",
+    "multi": false,
+    "options": [
+     {
+      "id": "rare",
+      "label": "Once in a while"
+     },
+     {
+      "id": "some",
+      "label": "1–2 nights a week"
+     },
+     {
+      "id": "most",
+      "label": "3 or more nights a week"
+     }
+    ]
+   },
+   {
+    "id": "dur",
+    "prompt": "For how long has this been going on?",
+    "multi": false,
+    "options": [
+     {
+      "id": "lt1",
+      "label": "Less than a month"
+     },
+     {
+      "id": "1to3",
+      "label": "1 – 3 months"
+     },
+     {
+      "id": "gt3",
+      "label": "More than 3 months"
+     }
+    ]
+   },
+   {
+    "id": "awake",
+    "prompt": "When it happens, how long are you lying there?",
+    "multi": false,
+    "options": [
+     {
+      "id": "quick",
+      "label": "A few minutes, then I'm out"
+     },
+     {
+      "id": "mid",
+      "label": "20 minutes to an hour"
+     },
+     {
+      "id": "long",
+      "label": "More than an hour"
+     }
+    ]
+   },
+   {
+    "id": "day",
+    "prompt": "And the next day?",
+    "multi": false,
+    "options": [
+     {
+      "id": "fine",
+      "label": "Honestly fine"
+     },
+     {
+      "id": "tired",
+      "label": "Tired, but I manage"
+     },
+     {
+      "id": "impact",
+      "label": "It's hurting my work, mood or driving"
+     }
+    ]
+   },
+   {
+    "id": "other",
+    "prompt": "Any of these sound familiar?",
+    "multi": true,
+    "options": [
+     {
+      "id": "racing",
+      "label": "Racing thoughts / worrying"
+     },
+     {
+      "id": "phone",
+      "label": "Phone in bed"
+     },
+     {
+      "id": "caffeine",
+      "label": "Chai or coffee after 3 PM"
+     },
+     {
+      "id": "reflux",
+      "label": "Acidity / heartburn at night"
+     },
+     {
+      "id": "pee",
+      "label": "Getting up to pee more than once"
+     },
+     {
+      "id": "flush",
+      "label": "Hot flushes or night sweats"
+     },
+     {
+      "id": "snore",
+      "label": "Loud snoring or gasping (someone's told me)"
+     },
+     {
+      "id": "mood",
+      "label": "Low mood or anxiety most days"
+     },
+     {
+      "id": "none",
+      "label": "None of these"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "toddler",
+  "title": "My toddler won't eat",
+  "whisper": "Is my child eating enough?",
+  "questions": [
+   {
+    "id": "age",
+    "prompt": "How old is your little one?",
+    "multi": false,
+    "options": [
+     {
+      "id": "1to2",
+      "label": "1 – 2 years"
+     },
+     {
+      "id": "2to3",
+      "label": "2 – 3 years"
+     },
+     {
+      "id": "3to5",
+      "label": "3 – 5 years"
+     }
+    ]
+   },
+   {
+    "id": "pattern",
+    "prompt": "Which sounds most like mealtimes?",
+    "multi": false,
+    "options": [
+     {
+      "id": "few",
+      "label": "Eats the same 3 things, refuses the rest"
+     },
+     {
+      "id": "swings",
+      "label": "Eats loads one day, nothing the next"
+     },
+     {
+      "id": "refuses",
+      "label": "Refuses whole meals"
+     },
+     {
+      "id": "milk",
+      "label": "Mostly just wants milk"
+     }
+    ]
+   },
+   {
+    "id": "growth",
+    "prompt": "What did the doctor say at the last check-up?",
+    "multi": false,
+    "options": [
+     {
+      "id": "ok",
+      "label": "Growth is on track"
+     },
+     {
+      "id": "unknown",
+      "label": "Haven't had it checked recently"
+     },
+     {
+      "id": "flagged",
+      "label": "They've lost weight / doctor flagged growth"
+     }
+    ]
+   },
+   {
+    "id": "other",
+    "prompt": "Anything else?",
+    "multi": true,
+    "options": [
+     {
+      "id": "milk",
+      "label": "Drinks more than 3 glasses of milk a day"
+     },
+     {
+      "id": "dropping",
+      "label": "Stopped eating foods they used to like"
+     },
+     {
+      "id": "meltdown",
+      "label": "Real meltdowns about food, not just ‘no’"
+     },
+     {
+      "id": "gag",
+      "label": "Gags, chokes or vomits with food often"
+     },
+     {
+      "id": "pain",
+      "label": "Seems to hurt when eating or swallowing"
+     },
+     {
+      "id": "unwell",
+      "label": "Unwell: fever, fewer wet nappies, drowsy"
+     },
+     {
+      "id": "none",
+      "label": "None of these"
+     }
+    ]
+   }
+  ]
+ }
+]

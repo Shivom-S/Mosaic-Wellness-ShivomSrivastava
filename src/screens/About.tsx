@@ -115,7 +115,9 @@ export function About() {
           (contrarian, first-principles, expansionist, outsider, executor) debated what to build, then anonymously
           reviewed each other. That council's most popular “big idea”, an operator dashboard, was the one I cut.
           Second, as a <Em>builder</Em>: Claude Code wrote the interface from my spec, while every threshold and every
-          line of medical copy was checked against the sources listed below.
+          line of medical copy was checked against the sources listed below. If an AI key is connected, the &apos;what&apos;s on your mind?&apos; box uses a model only to route
+          your words to the right check and pre-fill the answers it&apos;s sure about. It never writes the medical
+          advice. Every verdict still comes from the cited rules.
         </p>
       </Block>
 

@@ -39,3 +39,72 @@ export async function getPulse(): Promise<Pulse | null> {
     return null;
   }
 }
+
+// ---------- Optional AI intake ----------
+// The model only routes words to a worry and pre-fills answers. Verdicts stay local and rule-based.
+
+export interface Understood {
+  worry: WorryId | null;
+  urgent: boolean;
+  answers: Record<string, string[]>;
+  echo: string;
+}
+
+const WORRY_IDS: readonly string[] = ["hair", "cycle", "sleep", "toddler"];
+
+/** Sends the text to the backend for routing. Null on any failure (AI off, slow, offline, odd reply). */
+export async function understand(text: string): Promise<Understood | null> {
+  if (!BASE) return null;
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), 6000);
+  try {
+    const res = await fetch(`${BASE}/api/understand`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: text.trim().slice(0, 500) }),
+      signal: ctrl.signal,
+    });
+    if (!res.ok) return null;
+    const j = (await res.json()) as Partial<Understood> | null;
+    if (!j || typeof j !== "object") return null;
+    const worry = typeof j.worry === "string" && WORRY_IDS.includes(j.worry) ? (j.worry as WorryId) : null;
+    const answers: Record<string, string[]> = {};
+    if (j.answers && typeof j.answers === "object") {
+      for (const [q, v] of Object.entries(j.answers)) {
+        if (Array.isArray(v)) answers[q] = v.filter((x): x is string => typeof x === "string");
+      }
+    }
+    return { worry, urgent: j.urgent === true, answers, echo: typeof j.echo === "string" ? j.echo.trim() : "" };
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(t);
+  }
+}
+
+type AiName = "claude" | "gemini";
+let aiCache: AiName | null | undefined;
+let aiInflight: Promise<AiName | null> | null = null;
+
+/** Which AI the backend has connected, or null. A good reply is cached; a failed one is retried next time. */
+export function aiStatus(): Promise<AiName | null> {
+  if (!BASE) return Promise.resolve(null);
+  if (aiCache !== undefined) return Promise.resolve(aiCache);
+  aiInflight ??= (async () => {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 4000);
+    try {
+      const res = await fetch(`${BASE}/api/health`, { signal: ctrl.signal });
+      // 503 still carries the ai field (DB may be down while AI works)
+      const j = (await res.json()) as { ai?: unknown } | null;
+      aiCache = j?.ai === "claude" || j?.ai === "gemini" ? j.ai : null;
+      return aiCache;
+    } catch {
+      return null;
+    } finally {
+      clearTimeout(t);
+      aiInflight = null;
+    }
+  })();
+  return aiInflight;
+}

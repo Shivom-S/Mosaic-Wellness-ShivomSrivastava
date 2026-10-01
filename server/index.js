@@ -4,6 +4,7 @@
 import express from "express";
 import cors from "cors";
 import pg from "pg";
+import { aiProvider, understand } from "./intake.js";
 
 const PORT = process.env.PORT || 3000;
 const ORIGINS = (process.env.ALLOWED_ORIGIN || "").split(",").map((s) => s.trim()).filter(Boolean);
@@ -55,13 +56,13 @@ const limited = (req) => {
   return arr.length > 30;
 };
 
-app.get("/", (_req, res) => res.json({ ok: true, service: "1am-api" }));
+app.get("/", (_req, res) => res.json({ ok: true, service: "1am-api", ai: Boolean(aiProvider) }));
 app.get("/api/health", async (_req, res) => {
   try {
     await pool.query("select 1");
-    res.json({ ok: true, db: true });
+    res.json({ ok: true, db: true, ai: aiProvider });
   } catch {
-    res.status(503).json({ ok: false, db: false });
+    res.status(503).json({ ok: false, db: false, ai: aiProvider });
   }
 });
 
@@ -79,6 +80,22 @@ app.post("/api/ratings", async (req, res) => {
   } catch (e) {
     console.error(e);
     res.status(500).json({ error: "db" });
+  }
+});
+
+// AI intake. The text is used for this one request and never stored or logged.
+app.post("/api/understand", async (req, res) => {
+  if (!aiProvider) return res.status(503).json({ error: "ai off" });
+  if (limited(req)) return res.status(429).json({ error: "slow down" });
+  const text = typeof req.body?.text === "string" ? req.body.text.trim().slice(0, 500) : "";
+  if (text.length < 3) return res.status(400).json({ error: "invalid" });
+  try {
+    const out = await understand(text);
+    if (!out) return res.status(502).json({ error: "unreadable" });
+    res.json(out);
+  } catch (e) {
+    console.error("ai error", String(e).slice(0, 200));
+    res.status(502).json({ error: "ai" });
   }
 });
 

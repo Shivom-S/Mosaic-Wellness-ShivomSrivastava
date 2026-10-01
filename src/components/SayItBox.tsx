@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { ArrowRight, LifeBuoy, Mic } from "lucide-react";
 import { WORRY, matchWorry, type WorryId } from "@/content";
+import { aiStatus, understand } from "@/lib/api";
+import { clearAllPrefill, sanitizeAnswers, savePrefill } from "@/lib/prefill";
 import { href } from "@/lib/route";
 import { keys, store } from "@/lib/storage";
 import { openUrgent } from "@/lib/urgent";
@@ -34,14 +36,25 @@ function speechCtor(): RecognitionCtor | null {
 interface SayItBoxProps {
   value: string;
   onValue: (text: string) => void;
+  /** Lets another part of the page (a Popular chip) submit text as if it had been typed. */
+  request?: { text: string; n: number } | null;
 }
 
-/** The main input: type it, or say it. Deterministic keyword matching, no network. */
-export function SayItBox({ value, onValue }: SayItBoxProps) {
+interface Heard {
+  echo: string;
+  filled: number;
+}
+
+/** The main input: type it, or say it. Keyword matching on the phone; an optional AI only routes and pre-fills. */
+export function SayItBox({ value, onValue, request }: SayItBoxProps) {
   const [prompt, setPrompt] = useState(0);
   const [match, setMatch] = useState<WorryId | "none" | null>(null);
   const [listening, setListening] = useState(false);
   const [voiceNote, setVoiceNote] = useState(false);
+  const [aiOn, setAiOn] = useState(false);
+  const [reading, setReading] = useState(false);
+  const [heard, setHeard] = useState<Heard | null>(null);
+  const token = useRef(0);
   const rec = useRef<RecognitionLike | null>(null);
   const supported = useRef(speechCtor() !== null).current;
 
@@ -52,18 +65,57 @@ export function SayItBox({ value, onValue }: SayItBoxProps) {
 
   useEffect(() => () => rec.current?.stop(), []);
 
+  // Find out early whether an AI is connected, so the note shows and the first submit isn't slowed.
+  useEffect(() => {
+    let live = true;
+    void aiStatus().then((ai) => live && setAiOn(Boolean(ai)));
+    return () => {
+      live = false;
+    };
+  }, []);
+
   // A chip elsewhere on the page can fill the box; a cleared box clears the answer too.
   useEffect(() => {
-    if (!value.trim()) setMatch(null);
+    if (!value.trim()) {
+      token.current += 1;
+      setMatch(null);
+      setReading(false);
+      setHeard(null);
+    }
   }, [value]);
 
-  const run = (text: string) => {
-    if (text.trim()) setMatch(matchWorry(text) ?? "none");
+  const run = async (text: string) => {
+    if (!text.trim()) return;
+    const mine = ++token.current;
+    clearAllPrefill();
+    setHeard(null);
+    const local = () => setMatch(matchWorry(text) ?? "none");
+
+    if (!(await aiStatus())) return local();
+    if (mine !== token.current) return;
+    setMatch(null);
+    setReading(true);
+    const got = await understand(text);
+    if (mine !== token.current) return; // the box changed while we waited
+    setReading(false);
+    if (!got) return local();
+
+    if (got.urgent) openUrgent();
+    if (!got.worry) return setMatch("none");
+    const answers = sanitizeAnswers(got.worry, got.answers);
+    savePrefill(got.worry, answers);
+    setHeard({ echo: got.echo, filled: Object.keys(answers).length });
+    setMatch(got.worry);
   };
+
+  useEffect(() => {
+    if (request?.text.trim()) void run(request.text);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [request?.n]);
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
-    run(value);
+    void run(value);
   };
 
   const toggleMic = () => {
@@ -88,10 +140,13 @@ export function SayItBox({ value, onValue }: SayItBoxProps) {
     r.onerror = () => setListening(false);
     r.onend = () => {
       setListening(false);
-      run(heard);
+      void run(heard);
     };
     rec.current = r;
+    token.current += 1;
     setMatch(null);
+    setReading(false);
+    setHeard(null);
     setListening(true);
     try {
       r.start();
@@ -118,7 +173,10 @@ export function SayItBox({ value, onValue }: SayItBoxProps) {
             value={value}
             onChange={(e) => {
               onValue(e.target.value);
+              token.current += 1;
               setMatch(null);
+              setReading(false);
+              setHeard(null);
             }}
             placeholder={listening ? "Listening… say it however it comes out" : PROMPTS[prompt]}
             autoComplete="off"
@@ -169,6 +227,11 @@ export function SayItBox({ value, onValue }: SayItBoxProps) {
           "English, Hinglish, however it comes out at 1 AM."
         )}
       </p>
+      {aiOn && (
+        <p className="mt-1.5 text-[13px] leading-snug text-ink-muted">
+          Typed text is sent to an AI model just to understand it. 1AM doesn't store it.
+        </p>
+      )}
       {voiceNote && (
         <p className="mt-1.5 text-[13px] leading-snug text-ink-muted">
           Voice uses your browser's speech service. Typing stays on your phone.
@@ -176,13 +239,20 @@ export function SayItBox({ value, onValue }: SayItBoxProps) {
       )}
 
       <div aria-live="polite">
+        {reading && <p className="mt-3 text-[15px] leading-snug text-ink-muted">Reading what you wrote…</p>}
         {match && match !== "none" && (
           <a
             href={href({ name: "check", id: match })}
             className="mt-3 flex animate-fade-up items-center justify-between gap-3 rounded-2xl border border-lamp/40 bg-lamp/10 px-4 py-3.5 text-[16px] leading-snug transition-colors hover:bg-lamp/20"
           >
-            <span>
+            <span className="min-w-0">
               Sounds like <b className="font-semibold">{WORRY[match].title}</b>.
+              {heard?.echo && <span className="mt-1 block italic text-ink-muted">We heard: “{heard.echo}”</span>}
+              {heard && heard.filled > 0 && (
+                <span className="mt-1 block text-[14px] text-ink-muted">
+                  We've filled in {heard.filled} {heard.filled === 1 ? "answer" : "answers"} from what you wrote. You can change them.
+                </span>
+              )}
             </span>
             <span className="shrink-0 font-semibold text-lamp">Start the check →</span>
           </a>

@@ -5,6 +5,7 @@ import { History, HowItWorks, Popular, StopTheSpiral } from "@/components/HomeSe
 import { Pulse } from "@/components/Pulse";
 import { SayItBox } from "@/components/SayItBox";
 import { WorryCard } from "@/components/WorryCard";
+import { aiStatus } from "@/lib/api";
 import { greeting, useNow } from "@/lib/clock";
 import { href } from "@/lib/route";
 import { loadEntries, useStoreVersion } from "@/lib/storage";
@@ -16,16 +17,21 @@ export function Home() {
   const g = greeting(now);
   const [ask, setAsk] = useState("");
   const timer = useRef<number | undefined>(undefined);
+  const [request, setRequest] = useState<{ text: string; n: number } | null>(null);
 
   useEffect(() => () => window.clearTimeout(timer.current), []);
 
   // A popular question fills the box (so it feels heard) and then goes straight to the check.
+  // With an AI connected, the chip is submitted like typed text so the check opens pre-filled.
   const pick = (q: string, worry: WorryId) => {
     setAsk(q);
     window.clearTimeout(timer.current);
-    timer.current = window.setTimeout(() => {
-      window.location.hash = href({ name: "check", id: worry });
-    }, 320);
+    void aiStatus().then((ai) => {
+      if (ai) return setRequest((r) => ({ text: q, n: (r?.n ?? 0) + 1 }));
+      timer.current = window.setTimeout(() => {
+        window.location.hash = href({ name: "check", id: worry });
+      }, 320);
+    });
   };
 
   return (
@@ -52,7 +58,7 @@ export function Home() {
             </p>
           </div>
 
-          <SayItBox value={ask} onValue={setAsk} />
+          <SayItBox value={ask} onValue={setAsk} request={request} />
 
           <p className="text-[13px] leading-relaxed text-ink-muted">
             Cited sources · Nothing to buy · No account · Not a diagnosis
