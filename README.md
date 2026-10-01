@@ -56,3 +56,6 @@ npx tsx scripts/check-content.ts
 ## Not medical advice
 
 1AM explains common thresholds and when to see a doctor. It doesn't diagnose anything.
+
+
+Access the app here: https://mosaic-wellness-shivom-srivastava.vercel.app/
