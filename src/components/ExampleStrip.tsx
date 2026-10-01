@@ -23,9 +23,10 @@ export function ExampleStrip() {
       </h2>
       <p className="mt-1 text-[14px] text-ink-muted">The same worries, a couple of weeks later.</p>
 
-      <ul className="no-scrollbar -mx-5 mt-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-2">
+      {/* pl-5 / scroll-pl-5 match the page gutter, so the first card snaps to the gutter rather than the screen edge; the last card's mr-5 is the trailing space. */}
+      <ul className="no-scrollbar -mx-5 mt-4 flex snap-x snap-mandatory scroll-pl-5 gap-3 overflow-x-auto pb-2 pl-5">
         {items.map(({ w, trend, label }) => (
-          <li key={w.id} className="w-[216px] shrink-0 snap-start">
+          <li key={w.id} className="w-[216px] shrink-0 snap-start last:mr-5">
             <a
               href={href({ name: "example", id: w.id })}
               className="flex h-full flex-col rounded-[22px] border border-line bg-surface p-4 transition-colors hover:border-lamp/50 hover:bg-surface-2 active:scale-[0.99]"

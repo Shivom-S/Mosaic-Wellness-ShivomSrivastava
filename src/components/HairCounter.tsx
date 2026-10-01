@@ -69,10 +69,10 @@ export function HairCounter({ value, onChange, onDone, variant = "check" }: Hair
     <div>
       {variant === "check" && (
         <header className="animate-fade-up">
-          <h1 className="font-display text-[34px] leading-[1.1] tracking-[-0.01em]">
+          <h1 className="font-display text-[28px] leading-[1.1] tracking-[-0.01em]">
             Count tonight's <em className="italic text-lamp">hairs.</em>
           </h1>
-          <p className="mt-3 text-[15px] leading-relaxed text-ink-muted">
+          <p className="mt-2 text-[13px] leading-snug text-ink-muted">
             Check your pillow, your comb or brush, the shower drain, and anywhere else (clothes, floor). Tap once per
             hair.
           </p>
@@ -82,7 +82,7 @@ export function HairCounter({ value, onChange, onDone, variant = "check" }: Hair
       <div
         role="tablist"
         aria-label="Where you found them"
-        className={cn("grid grid-cols-4 gap-1 rounded-2xl border border-line bg-surface p-1", variant === "check" && "mt-6")}
+        className={cn("grid grid-cols-4 gap-1 rounded-2xl border border-line bg-surface p-1", variant === "check" && "mt-4")}
       >
         {LOCATIONS.map((l) => {
           const on = l.id === loc;
@@ -108,14 +108,45 @@ export function HairCounter({ value, onChange, onDone, variant = "check" }: Hair
         })}
       </div>
 
-      <div className="mt-6 flex justify-center">
-        <div className="rounded-full border border-dashed border-line p-2.5">
+      {/* The running total sits right under the tabs, so it stays in view while you tap the pad. */}
+      <div className="mt-3 flex items-center gap-4">
+        <div aria-live="polite" aria-atomic="true" className="shrink-0">
+          <span key={total} className="num block animate-bump font-display text-[56px] leading-none tracking-tight">
+            {total}
+          </span>
+          <span className="mt-1 block whitespace-nowrap text-[12px] leading-none text-ink-muted">
+            {total === 1 ? "hair" : "hairs"} counted so far
+          </span>
+        </div>
+
+        <div className="min-w-0 flex-1">
+          <div aria-hidden="true">
+            <div className="relative h-3 rounded-full bg-surface-2">
+              <div className="absolute inset-y-0 left-1/4 w-1/4 rounded-full bg-normal/25" />
+              <div
+                className="absolute top-1/2 size-5 -translate-x-1/2 -translate-y-1/2 rounded-full border-[3px] border-bg bg-lamp shadow transition-[left] duration-300 ease-out"
+                style={{ left: `${marker}%` }}
+              />
+            </div>
+            <div className="relative mt-1 h-3.5 text-[11px] leading-none text-ink-faint">
+              <span className="absolute left-0">0</span>
+              <span className="absolute left-1/4 -translate-x-1/2">50</span>
+              <span className="absolute left-1/2 -translate-x-1/2">100</span>
+              <span className="absolute right-0">200+</span>
+            </div>
+          </div>
+          <p className="mt-1 text-[12px] leading-snug text-ink-muted">Dermatologists: 50–100 a day is normal.</p>
+        </div>
+      </div>
+
+      <div className="mt-3 flex justify-center">
+        <div className="rounded-full border border-dashed border-line p-2">
           <button
             type="button"
             onClick={() => add(1)}
             aria-label={`Add one hair to ${LOCATIONS.find((l) => l.id === loc)!.label}. ${here} so far.`}
             className={cn(
-              "relative block size-[232px] touch-manipulation select-none overflow-hidden rounded-full border border-line bg-surface",
+              "relative block size-[min(64vw,260px)] touch-manipulation select-none overflow-hidden rounded-full border border-line bg-surface",
               "shadow-[inset_0_0_48px_rgb(var(--lamp)/0.07)] transition-transform duration-100 active:scale-[0.965]",
             )}
           >
@@ -147,7 +178,7 @@ export function HairCounter({ value, onChange, onDone, variant = "check" }: Hair
         </div>
       </div>
 
-      <div className="mt-4 flex items-center justify-center gap-3">
+      <div className="mt-3 flex items-center justify-center gap-3">
         <button type="button" onClick={remove} disabled={here === 0} className={btn("secondary", "min-w-[84px]")} aria-label="Remove one hair">
           −1
         </button>
@@ -156,31 +187,7 @@ export function HairCounter({ value, onChange, onDone, variant = "check" }: Hair
         </button>
       </div>
 
-      <div className="mt-6 text-center" aria-live="polite" aria-atomic="true">
-        <span key={total} className="num inline-block animate-bump font-display text-[76px] leading-none tracking-tight">
-          {total}
-        </span>
-        <span className="mt-1 block text-sm text-ink-muted">{total === 1 ? "hair" : "hairs"} counted so far</span>
-      </div>
-
-      <div className="mt-5" aria-hidden="true">
-        <div className="relative h-3 rounded-full bg-surface-2">
-          <div className="absolute inset-y-0 left-1/4 w-1/4 rounded-full bg-normal/25" />
-          <div
-            className="absolute top-1/2 size-5 -translate-x-1/2 -translate-y-1/2 rounded-full border-[3px] border-bg bg-lamp shadow transition-[left] duration-300 ease-out"
-            style={{ left: `${marker}%` }}
-          />
-        </div>
-        <div className="relative mt-1.5 h-4 text-[11px] text-ink-faint">
-          <span className="absolute left-0">0</span>
-          <span className="absolute left-1/4 -translate-x-1/2">50</span>
-          <span className="absolute left-1/2 -translate-x-1/2">100</span>
-          <span className="absolute right-0">200+</span>
-        </div>
-      </div>
-      <p className="mt-1 text-center text-[13px] text-ink-muted">Dermatologists: 50–100 a day is normal.</p>
-
-      <div className={cn("flex flex-col items-center gap-1", variant === "check" ? "mt-7" : "mt-5")}>
+      <div className={cn("flex flex-col items-center gap-1", variant === "check" ? "mt-5" : "mt-4")}>
         <button type="button" disabled={total === 0} onClick={() => onDone(value)} className={btn("primary", "w-full")}>
           {variant === "check" ? "That's everything →" : "Use this count →"}
         </button>

@@ -15,6 +15,8 @@ interface TrackerDailyProps {
   tracker: DailyTracker;
   /** Today's entry, if there already is one (so you can correct it). */
   today?: DailyEntry;
+  /** Starting values when there's no entry for today yet (hair: tonight's check). */
+  prefill?: DailyEntry["values"];
   onSave: (values: DailyEntry["values"]) => void;
 }
 
@@ -83,8 +85,8 @@ function Stepper({ field, value, onChange }: { field: NumberField; value: number
   );
 }
 
-export function TrackerDaily({ worryId, tracker, today, onSave }: TrackerDailyProps) {
-  const [draft, setDraft] = useState<Draft>(() => ({ ...(today?.values ?? {}) }));
+export function TrackerDaily({ worryId, tracker, today, prefill, onSave }: TrackerDailyProps) {
+  const [draft, setDraft] = useState<Draft>(() => ({ ...(today?.values ?? prefill ?? {}) }));
   const [padOpen, setPadOpen] = useState(false);
   const [padCount, setPadCount] = useState<HairCount>(NO_HAIRS);
 
@@ -139,6 +141,7 @@ export function TrackerDaily({ worryId, tracker, today, onSave }: TrackerDailyPr
 
   return (
     <form onSubmit={submit} className="space-y-7">
+      {!today && prefill && <p className="-mb-3 text-[13px] text-ink-muted">Pre-filled from tonight's count.</p>}
       {tracker.fields.map((f) =>
         f.kind === "toggle" ? (
           <div key={f.id} className="flex min-h-12 items-center justify-between gap-4 rounded-2xl border border-line bg-surface px-4 py-2.5">

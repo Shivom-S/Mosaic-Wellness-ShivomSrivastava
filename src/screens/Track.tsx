@@ -10,7 +10,7 @@ import { TrendCard } from "@/components/TrendCard";
 import { WipeButton } from "@/components/WipeButton";
 import { href } from "@/lib/route";
 import { keys, loadEntries, saveEntries } from "@/lib/storage";
-import { todayISO, trackStatus } from "@/lib/track";
+import { hairPrefill, todayISO, trackStatus } from "@/lib/track";
 import { stagger } from "@/lib/ui";
 
 export function Track({ id }: { id: WorryId }) {
@@ -23,6 +23,8 @@ export function Track({ id }: { id: WorryId }) {
   const status = trackStatus(worry, entries);
   const today = todayISO();
   const todayEntry = entries.find((e) => e.date === today);
+  // Only before today is logged: pre-fill the form from tonight's hair check (still editable).
+  const prefill = useMemo(() => (id === "hair" && !todayEntry ? hairPrefill() : null), [id, todayEntry]);
 
   const scrollToTrend = () =>
     requestAnimationFrame(() =>
@@ -96,6 +98,7 @@ export function Track({ id }: { id: WorryId }) {
             worryId={id}
             tracker={tracker}
             today={todayEntry}
+            prefill={prefill ?? undefined}
             onSave={saveToday}
           />
         ) : (

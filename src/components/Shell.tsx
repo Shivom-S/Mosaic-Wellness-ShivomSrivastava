@@ -44,14 +44,15 @@ export function Shell({ children, theme, onToggleTheme, stars = "sides", footer 
             <button
               type="button"
               onClick={onToggleTheme}
-              aria-pressed={lampOn}
-              aria-label={lampOn ? "Lamp is on. Switch back to night" : "Switch the lamp on"}
+              aria-label={lampOn ? "Turn the lamp off" : "Turn the lamp on"}
               className={cn(
-                "inline-flex size-11 items-center justify-center rounded-full transition-colors",
-                lampOn ? "bg-lamp/15 text-lamp" : "text-ink-muted hover:bg-surface hover:text-lamp",
+                "inline-flex size-11 touch-manipulation items-center justify-center rounded-full border transition active:scale-90",
+                lampOn
+                  ? "border-lamp bg-lamp text-on-lamp shadow-[0_0_16px_rgb(var(--lamp)/0.45)]"
+                  : "border-line text-ink-muted hover:bg-surface hover:text-lamp",
               )}
             >
-              <Lightbulb className={cn("size-5 transition-all", lampOn && "fill-lamp/30")} aria-hidden="true" />
+              <Lightbulb className={cn("size-5 transition-all", lampOn && "fill-on-lamp/30")} aria-hidden="true" />
             </button>
           </div>
         </header>

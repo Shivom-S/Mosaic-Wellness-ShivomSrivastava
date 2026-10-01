@@ -43,7 +43,7 @@ export function QuestionFlow({ question: q, answers, last, onChange, onNext }: Q
           options={q.options}
           value={value}
           multi={q.multi}
-          layout={q.multi ? "wrap" : "stack"}
+          layout="stack"
           disabled={locked}
           onChange={pick}
         />

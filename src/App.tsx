@@ -1,15 +1,18 @@
-import { useEffect, useRef, useState } from "react";
+import { lazy, startTransition, Suspense, useEffect, useRef, useState } from "react";
 import { WORRY } from "@/content";
 import { Toaster } from "@/components/ui/sonner";
+import { QrCard } from "@/components/QrCard";
 import { Shell } from "@/components/Shell";
 import { parseHash, routeKey, type Route } from "@/lib/route";
 import { useTheme } from "@/lib/theme";
-import { About } from "@/screens/About";
 import { Check } from "@/screens/Check";
-import { Example } from "@/screens/Example";
 import { Home } from "@/screens/Home";
 import { Result } from "@/screens/Result";
-import { Track } from "@/screens/Track";
+
+// Secondary screens load on demand so the home screen's JS stays small. Result and Check stay eager.
+const About = lazy(() => import("@/screens/About").then((m) => ({ default: m.About })));
+const Example = lazy(() => import("@/screens/Example").then((m) => ({ default: m.Example })));
+const Track = lazy(() => import("@/screens/Track").then((m) => ({ default: m.Track })));
 
 const titleFor = (r: Route) => {
   switch (r.name) {
@@ -46,7 +49,8 @@ export default function App() {
 
   // Hash is the source of truth: Back, shared links and in-app <a href="#/…"> all land here.
   useEffect(() => {
-    const onHash = () => setRoute(parseHash(window.location.hash));
+    // a transition keeps the current screen up while a lazy one loads, instead of flashing a fallback
+    const onHash = () => startTransition(() => setRoute(parseHash(window.location.hash)));
     window.addEventListener("hashchange", onHash);
     return () => window.removeEventListener("hashchange", onHash);
   }, []);
@@ -69,9 +73,12 @@ export default function App() {
         footer={route.name !== "check"}
       >
         <div key={key}>
-          <Screen route={route} />
+          <Suspense fallback={<div aria-hidden="true" className="min-h-[50dvh]" />}>
+            <Screen route={route} />
+          </Suspense>
         </div>
       </Shell>
+      <QrCard />
       <Toaster theme={theme === "lamp" ? "light" : "dark"} />
     </>
   );

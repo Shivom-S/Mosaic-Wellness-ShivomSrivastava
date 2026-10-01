@@ -59,7 +59,7 @@ export function Check({ id }: { id: WorryId }) {
         aria-valuemin={1}
         aria-valuemax={steps}
         aria-valuenow={step + 1}
-        className="mb-8 mt-2 h-1 overflow-hidden rounded-full bg-line"
+        className={`${counting && step === 0 ? "mb-4" : "mb-8"} mt-2 h-1 overflow-hidden rounded-full bg-line`}
       >
         <div
           className="h-full rounded-full bg-lamp transition-[width] duration-300 ease-out"
