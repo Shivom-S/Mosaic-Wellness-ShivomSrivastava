@@ -1,6 +1,6 @@
 // Optional backend (Replit). If VITE_API_URL isn't set, every call is a quiet no-op
 // and the app works exactly as before.
-import type { Verdict, WorryId } from "@/content";
+import { WORRIES, type Verdict, type WorryId } from "@/content";
 
 const BASE = (import.meta.env.VITE_API_URL as string | undefined)?.replace(/\/$/, "");
 export const apiEnabled = Boolean(BASE);
@@ -48,9 +48,11 @@ export interface Understood {
   urgent: boolean;
   answers: Record<string, string[]>;
   echo: string;
+  /** Only when `worry` is null: who to ask about a concern we don't cover. */
+  triage: { topic: string; specialist: string } | null;
 }
 
-const WORRY_IDS: readonly string[] = ["hair", "cycle", "sleep", "toddler"];
+const WORRY_IDS: readonly string[] = WORRIES.map((w) => w.id);
 
 /** Sends the text to the backend for routing. Null on any failure (AI off, slow, offline, odd reply). */
 export async function understand(text: string): Promise<Understood | null> {
@@ -74,7 +76,12 @@ export async function understand(text: string): Promise<Understood | null> {
         if (Array.isArray(v)) answers[q] = v.filter((x): x is string => typeof x === "string");
       }
     }
-    return { worry, urgent: j.urgent === true, answers, echo: typeof j.echo === "string" ? j.echo.trim() : "" };
+    let triage: Understood["triage"] = null;
+    const tr = j.triage;
+    if (!worry && tr && typeof tr === "object" && typeof tr.specialist === "string" && tr.specialist.trim()) {
+      triage = { topic: typeof tr.topic === "string" ? tr.topic.trim() : "", specialist: tr.specialist.trim() };
+    }
+    return { worry, urgent: j.urgent === true, answers, echo: typeof j.echo === "string" ? j.echo.trim() : "", triage };
   } catch {
     return null;
   } finally {

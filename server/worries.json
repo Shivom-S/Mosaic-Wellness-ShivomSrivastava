@@ -460,5 +460,225 @@
     ]
    }
   ]
+ },
+ {
+  "id": "acne",
+  "title": "Breakout before the big day",
+  "whisper": "Why is my skin doing this?",
+  "questions": [
+   {
+    "id": "type",
+    "prompt": "What does it look like, mostly?",
+    "multi": false,
+    "options": [
+     {
+      "id": "few",
+      "label": "A few pimples or blackheads, now and then"
+     },
+     {
+      "id": "many",
+      "label": "Lots of pimples, most days"
+     },
+     {
+      "id": "deep",
+      "label": "Deep, painful lumps under the skin"
+     }
+    ]
+   },
+   {
+    "id": "tried",
+    "prompt": "What have you tried so far?",
+    "multi": false,
+    "options": [
+     {
+      "id": "none",
+      "label": "Nothing yet"
+     },
+     {
+      "id": "short",
+      "label": "Some products, for less than 6 weeks"
+     },
+     {
+      "id": "long",
+      "label": "The same routine for 6–8+ weeks, no change"
+     }
+    ]
+   },
+   {
+    "id": "other",
+    "prompt": "Anything else?",
+    "multi": true,
+    "options": [
+     {
+      "id": "scars",
+      "label": "It's leaving scars or dark marks"
+     },
+     {
+      "id": "sudden",
+      "label": "It came on suddenly"
+     },
+     {
+      "id": "picking",
+      "label": "I pick or pop them"
+     },
+     {
+      "id": "mood",
+      "label": "It's really getting me down"
+     },
+     {
+      "id": "none",
+      "label": "None of these"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "dandruff",
+  "title": "Snow on my shoulders",
+  "whisper": "Why won't these flakes go away?",
+  "questions": [
+   {
+    "id": "flakes",
+    "prompt": "How bad are the flakes?",
+    "multi": false,
+    "options": [
+     {
+      "id": "light",
+      "label": "A few, now and then"
+     },
+     {
+      "id": "heavy",
+      "label": "Lots, I can see them on my clothes"
+     }
+    ]
+   },
+   {
+    "id": "tried",
+    "prompt": "Have you tried a dandruff shampoo?",
+    "multi": false,
+    "options": [
+     {
+      "id": "none",
+      "label": "Not really"
+     },
+     {
+      "id": "some",
+      "label": "On and off"
+     },
+     {
+      "id": "weeks",
+      "label": "Properly, for several weeks, no better"
+     }
+    ]
+   },
+   {
+    "id": "other",
+    "prompt": "Anything else going on?",
+    "multi": true,
+    "options": [
+     {
+      "id": "red",
+      "label": "Red, thick or crusty patches"
+     },
+     {
+      "id": "beyond",
+      "label": "Flaking on face, eyebrows, ears or chest"
+     },
+     {
+      "id": "sore",
+      "label": "Sore or oozing scalp"
+     },
+     {
+      "id": "hairloss",
+      "label": "Patchy hair loss too"
+     },
+     {
+      "id": "none",
+      "label": "None of these"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "reflux",
+  "title": "Burning after dinner",
+  "whisper": "Why does my chest burn when I lie down?",
+  "questions": [
+   {
+    "id": "freq",
+    "prompt": "How often do you get that burning feeling?",
+    "multi": false,
+    "options": [
+     {
+      "id": "rare",
+      "label": "Now and then, after a heavy meal"
+     },
+     {
+      "id": "weekly",
+      "label": "About once or twice a week"
+     },
+     {
+      "id": "often",
+      "label": "More than twice a week"
+     }
+    ]
+   },
+   {
+    "id": "otc",
+    "prompt": "Antacids (Digene, Eno, Gelusil…)?",
+    "multi": false,
+    "options": [
+     {
+      "id": "none",
+      "label": "Haven't needed them"
+     },
+     {
+      "id": "works",
+      "label": "Sometimes, and they work"
+     },
+     {
+      "id": "daily",
+      "label": "I need them most days"
+     }
+    ]
+   },
+   {
+    "id": "other",
+    "prompt": "Any of these?",
+    "multi": true,
+    "options": [
+     {
+      "id": "late",
+      "label": "Late, heavy dinners"
+     },
+     {
+      "id": "swallow",
+      "label": "Trouble or pain swallowing"
+     },
+     {
+      "id": "blood",
+      "label": "Blood in vomit, or black stools"
+     },
+     {
+      "id": "weight",
+      "label": "Losing weight without trying"
+     },
+     {
+      "id": "vomit",
+      "label": "Vomiting that won't stop"
+     },
+     {
+      "id": "chest",
+      "label": "Crushing chest pressure, or pain to arm/jaw, or breathless"
+     },
+     {
+      "id": "none",
+      "label": "None of these"
+     }
+    ]
+   }
+  ]
  }
 ]

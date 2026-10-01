@@ -51,7 +51,7 @@ export function About() {
 
       <Block title="What it does" i={2}>
         <p>
-          Four worries, each answered in about 60 seconds against the thresholds specialists actually use, with the
+          Seven worries, each answered in about 60 seconds against the thresholds specialists actually use, with the
           source shown on every answer. A verdict in plain words: <Em>normal</Em>, <Em>keep an eye on it</Em>, or{" "}
           <Em>worth a doctor visit</Em>. One thing to try tonight. A doctor-ready summary if you need one. And if one
           data point isn't enough, an optional 14-day tracker that turns a 1 AM guess into a trend.
@@ -70,7 +70,7 @@ export function About() {
               "Every verdict is deterministic and traceable to a cited threshold. It never makes up a statistic, never breaks without an API key, and the same answers always give the same verdict.",
             ],
             [
-              "Four worries, done properly.",
+              "Seven worries, done properly.",
               "Breadth is easy to add once the engine and the tone work.",
             ],
             [

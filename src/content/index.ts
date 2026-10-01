@@ -2,10 +2,13 @@ import { cycle } from "./cycle";
 import { hair } from "./hair";
 import { sleep } from "./sleep";
 import { toddler } from "./toddler";
+import { acne } from "./acne";
+import { dandruff } from "./dandruff";
+import { reflux } from "./reflux";
 import type { Worry, WorryId } from "./types";
 
-export const WORRIES: Worry[] = [hair, cycle, sleep, toddler];
-export const WORRY: Record<WorryId, Worry> = { hair, cycle, sleep, toddler };
+export const WORRIES: Worry[] = [hair, cycle, sleep, toddler, acne, dandruff, reflux];
+export const WORRY: Record<WorryId, Worry> = { hair, cycle, sleep, toddler, acne, dandruff, reflux };
 
 export const VERDICT_COPY = {
   normal: { label: "Normal", short: "You're fine", tone: "calm" },
@@ -18,8 +21,8 @@ export const VERDICT_COPY = {
 const KEYWORDS: Record<WorryId, string[]> = {
   hair: [
     "hair", "hairfall", "hair fall", "bald", "balding", "shedding", "receding", "hairline",
-    "comb", "pillow", "drain", "scalp", "thinning", "baal", "bal gir", "baal gir", "jhad",
-    "jhadna", "jhad rahe", "takla", "ganja", "gir rahe", "girte", "dandruff", "patch",
+    "comb", "pillow", "drain", "thinning", "baal", "bal gir", "baal gir", "jhad",
+    "jhadna", "jhad rahe", "takla", "ganja", "gir rahe", "girte", "patch",
   ],
   cycle: [
     "period", "periods", "cycle", "menstru", "late period", "missed period", "pcos", "pcod",
@@ -35,6 +38,18 @@ const KEYWORDS: Record<WorryId, string[]> = {
     "toddler", "baby", "kid", "child", "son", "daughter", "picky", "fussy", "won't eat",
     "wont eat", "not eating", "doesn't eat", "baccha", "bachcha", "bacha", "beta", "beti",
     "khana nahi", "khaata nahi", "khata nahi", "khati nahi", "khaana", "doodh", "milk",
+  ],
+  acne: [
+    "acne", "pimple", "pimples", "breakout", "breaking out", "zit", "zits", "blackhead", "whitehead",
+    "spots on my face", "muhase", "muhaase", "daane", "dane", "kil", "skin is", "face is", "cyst",
+  ],
+  dandruff: [
+    "dandruff", "flakes", "flaky", "flaking", "itchy scalp", "scalp", "rusi", "roosi", "khujli",
+    "seborr", "white flakes",
+  ],
+  reflux: [
+    "acidity", "acid", "heartburn", "heart burn", "reflux", "gerd", "burning chest", "chest burn",
+    "jalan", "seene mein jalan", "khatti dakar", "indigestion", "digene", "eno", "gelusil", "burp",
   ],
 };
 

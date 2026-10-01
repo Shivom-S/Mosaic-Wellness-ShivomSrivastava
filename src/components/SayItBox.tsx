@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { ArrowRight, LifeBuoy, Mic } from "lucide-react";
-import { WORRY, matchWorry, type WorryId } from "@/content";
+import { WORRIES, WORRY, matchWorry, type WorryId } from "@/content";
 import { aiStatus, understand } from "@/lib/api";
 import { clearAllPrefill, sanitizeAnswers, savePrefill } from "@/lib/prefill";
 import { href } from "@/lib/route";
@@ -20,7 +20,7 @@ interface RecognitionLike {
   interimResults: boolean;
   continuous: boolean;
   onresult: ((e: { results: ArrayLike<SpeechResultLike> }) => void) | null;
-  onerror: (() => void) | null;
+  onerror: ((e: { error?: string }) => void) | null;
   onend: (() => void) | null;
   start: () => void;
   stop: () => void;
@@ -43,7 +43,11 @@ interface SayItBoxProps {
 interface Heard {
   echo: string;
   filled: number;
+  /** Set only for a concern we don't cover. */
+  triage?: Triage;
 }
+
+type Triage = { topic: string; specialist: string };
 
 /** The main input: type it, or say it. Keyword matching on the phone; an optional AI only routes and pre-fills. */
 export function SayItBox({ value, onValue, request }: SayItBoxProps) {
@@ -51,6 +55,7 @@ export function SayItBox({ value, onValue, request }: SayItBoxProps) {
   const [match, setMatch] = useState<WorryId | "none" | null>(null);
   const [listening, setListening] = useState(false);
   const [voiceNote, setVoiceNote] = useState(false);
+  const [voiceMsg, setVoiceMsg] = useState<string | null>(null);
   const [aiOn, setAiOn] = useState(false);
   const [reading, setReading] = useState(false);
   const [heard, setHeard] = useState<Heard | null>(null);
@@ -100,8 +105,11 @@ export function SayItBox({ value, onValue, request }: SayItBoxProps) {
     setReading(false);
     if (!got) return local();
 
-    if (got.urgent) openUrgent();
-    if (!got.worry) return setMatch("none");
+    if (got.urgent || got.triage?.specialist === "emergency care") openUrgent();
+    if (!got.worry) {
+      if (got.triage) setHeard({ echo: "", filled: 0, triage: got.triage });
+      return setMatch("none");
+    }
     const answers = sanitizeAnswers(got.worry, got.answers);
     savePrefill(got.worry, answers);
     setHeard({ echo: got.echo, filled: Object.keys(answers).length });
@@ -125,22 +133,50 @@ export function SayItBox({ value, onValue, request }: SayItBoxProps) {
     }
     const Ctor = speechCtor();
     if (!Ctor) return;
-    const r = new Ctor();
+    setVoiceMsg(null);
+    let r: RecognitionLike;
+    try {
+      r = new Ctor();
+    } catch {
+      setVoiceMsg("Voice isn't available in this browser. Typing works just as well.");
+      return;
+    }
     r.lang = "en-IN";
     r.interimResults = true;
     r.continuous = false;
+    // Android Chrome returns cumulative results (each entry repeats the earlier words),
+    // so joining them duplicates text. There, the last entry is the whole utterance.
+    const android = /Android/i.test(navigator.userAgent);
     let heard = "";
+    let failed = false;
     r.onresult = (e) => {
-      heard = Array.from(e.results)
-        .map((x) => x[0].transcript)
-        .join(" ")
+      const list = Array.from(e.results);
+      heard = (android ? (list[list.length - 1]?.[0]?.transcript ?? "") : list.map((x) => x[0].transcript).join(" "))
+        .replace(/\s+/g, " ")
         .trim();
       onValue(heard);
     };
-    r.onerror = () => setListening(false);
-    r.onend = () => {
+    r.onerror = (e) => {
+      failed = true;
       setListening(false);
-      void run(heard);
+      const code = e?.error ?? "";
+      setVoiceMsg(
+        code === "not-allowed" || code === "service-not-allowed"
+          ? "The mic is blocked for this site. Allow it in your browser's site settings, or just type."
+          : code === "no-speech"
+            ? "Didn't catch that. Tap the mic and try again."
+            : code === "audio-capture"
+              ? "No microphone found on this device."
+              : code === "aborted"
+                ? null
+                : "Voice isn't working in this browser right now. Typing works just as well.",
+      );
+    };
+    r.onend = () => {
+      window.clearTimeout(stopTimer);
+      setListening(false);
+      if (heard) void run(heard);
+      else if (!failed) setVoiceMsg("Didn't catch anything. Tap the mic and try again.");
     };
     rec.current = r;
     token.current += 1;
@@ -148,10 +184,21 @@ export function SayItBox({ value, onValue, request }: SayItBoxProps) {
     setReading(false);
     setHeard(null);
     setListening(true);
+    // Safety net: some browsers never fire onend if the mic hangs.
+    const stopTimer = window.setTimeout(() => {
+      try {
+        r.stop();
+      } catch {
+        /* already stopped */
+      }
+    }, 15000);
     try {
       r.start();
     } catch {
+      window.clearTimeout(stopTimer);
       setListening(false);
+      setVoiceMsg("Couldn't start the mic. Try again, or just type.");
+      return;
     }
     // Be upfront the first time: the browser's speech service does the listening.
     if (store.get<boolean>(keys.voiceNote) !== true) {
@@ -234,11 +281,12 @@ export function SayItBox({ value, onValue, request }: SayItBoxProps) {
       )}
       {voiceNote && (
         <p className="mt-1.5 text-[13px] leading-snug text-ink-muted">
-          Voice uses your browser's speech service. Typing stays on your phone.
+          Voice uses your browser's speech service (in Chrome, that's Google). Typed text stays on your phone.
         </p>
       )}
 
       <div aria-live="polite">
+        {voiceMsg && <p className="mt-3 text-[14px] leading-snug text-watch">{voiceMsg}</p>}
         {reading && <p className="mt-3 text-[15px] leading-snug text-ink-muted">Reading what you wrote…</p>}
         {match && match !== "none" && (
           <a
@@ -257,11 +305,46 @@ export function SayItBox({ value, onValue, request }: SayItBoxProps) {
             <span className="shrink-0 font-semibold text-lamp">Start the check →</span>
           </a>
         )}
-        {match === "none" && (
+        {match === "none" && heard?.triage && (
+          <div className="mt-3 animate-fade-up rounded-2xl border border-line bg-surface px-4 py-4 text-[15px] leading-relaxed text-ink-muted">
+            <p className="font-display text-[20px] leading-snug text-ink">
+              We don't cover {heard.triage.topic || "that"} yet.
+            </p>
+            <p className="mt-1.5">
+              We'd rather say so than guess. The right person to ask:{" "}
+              <b className="font-semibold text-ink">{heard.triage.specialist}</b>.
+            </p>
+            <p className="mt-1.5 text-[13px] leading-snug text-ink-faint">
+              1AM only gives answers it can back with sources. This suggestion is from an AI model, not a diagnosis.
+            </p>
+            <button
+              type="button"
+              onClick={openUrgent}
+              className="mt-2 inline-flex min-h-11 items-center gap-2 text-[14px] font-semibold text-lamp underline-offset-4 hover:underline"
+            >
+              <LifeBuoy className="size-4" aria-hidden="true" />
+              See the urgent-help signs
+            </button>
+            <p className="mt-2 text-[13px] font-semibold text-ink-muted">Check one of these instead</p>
+            <ul className="mt-2 flex flex-wrap gap-2">
+              {WORRIES.map((w) => (
+                <li key={w.id}>
+                  <a
+                    href={href({ name: "check", id: w.id })}
+                    className="inline-flex min-h-11 items-center rounded-full border border-line px-3.5 text-[13px] font-medium text-ink transition hover:border-lamp/60 hover:bg-surface-2"
+                  >
+                    {w.title}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+        {match === "none" && !heard?.triage && (
           <div className="mt-3 animate-fade-up rounded-2xl border border-line bg-surface px-4 py-3.5 text-[15px] leading-relaxed text-ink-muted">
             <p>
-              We only cover four worries right now, on purpose. If it's sudden, severe or scary, don't wait on an app.
-              See a doctor.
+              We only cover {WORRIES.length} worries right now, on purpose. If it's sudden, severe or scary, don't wait on
+              an app. See a doctor.
             </p>
             <button
               type="button"

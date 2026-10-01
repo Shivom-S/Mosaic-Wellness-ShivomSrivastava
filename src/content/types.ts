@@ -2,7 +2,7 @@
 // All verdict logic is deterministic (no AI) so the app never breaks and every
 // answer can be traced to a cited threshold.
 
-export type WorryId = "hair" | "cycle" | "sleep" | "toddler";
+export type WorryId = "hair" | "cycle" | "sleep" | "toddler" | "acne" | "dandruff" | "reflux";
 
 export type Verdict = "normal" | "watch" | "doctor";
 

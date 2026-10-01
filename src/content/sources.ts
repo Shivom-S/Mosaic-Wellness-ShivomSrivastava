@@ -62,6 +62,42 @@ export const SOURCES: Record<string, Source> = {
     title: "Your toddler only wants milk? How to ease a milk dependency",
     url: "https://www.healthychildren.org/English/ages-stages/toddler/nutrition/Pages/your-toddler-only-wants-milk-how-to-ease-milk-dependency-and-encourage-a-healthy-diet.aspx",
   },
+  aadAcneTreat: {
+    id: "aadAcneTreat",
+    org: "American Academy of Dermatology",
+    title: "Acne: Diagnosis and treatment",
+    url: "https://www.aad.org/public/diseases/acne/derm-treat/treat",
+  },
+  aadAcneHabits: {
+    id: "aadAcneHabits",
+    org: "American Academy of Dermatology",
+    title: "10 skin care habits that can worsen acne",
+    url: "https://www.aad.org/public/diseases/acne/skin-care/habits-stop",
+  },
+  aadDandruff: {
+    id: "aadDandruff",
+    org: "American Academy of Dermatology",
+    title: "How to treat dandruff",
+    url: "https://www.aad.org/public/everyday-care/hair-scalp-care/scalp/treat-dandruff",
+  },
+  niddkGerdSymptoms: {
+    id: "niddkGerdSymptoms",
+    org: "NIDDK (US National Institutes of Health)",
+    title: "Symptoms & causes of GER & GERD",
+    url: "https://www.niddk.nih.gov/health-information/digestive-diseases/acid-reflux-ger-gerd-adults/symptoms-causes",
+  },
+  niddkGerdTreat: {
+    id: "niddkGerdTreat",
+    org: "NIDDK (US National Institutes of Health)",
+    title: "Treatment for GER & GERD",
+    url: "https://www.niddk.nih.gov/health-information/digestive-diseases/acid-reflux-ger-gerd-adults/treatment",
+  },
+  mayoHeartburn: {
+    id: "mayoHeartburn",
+    org: "Mayo Clinic",
+    title: "Heartburn: symptoms and causes",
+    url: "https://www.mayoclinic.org/diseases-conditions/heartburn/symptoms-causes/syc-20373223",
+  },
   aapPicky: {
     id: "aapPicky",
     org: "American Academy of Pediatrics (HealthyChildren.org)",

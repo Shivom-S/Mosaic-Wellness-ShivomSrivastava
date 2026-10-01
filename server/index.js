@@ -1,6 +1,7 @@
 // 1AM API: a tiny, privacy-first backend for Replit.
 // Stores ONLY anonymous answer ratings: worry type, verdict type, "did it help", tone.
 // No free text, no counts, no answers, no IPs, no user ids.
+import { readFileSync } from "node:fs";
 import express from "express";
 import cors from "cors";
 import pg from "pg";
@@ -16,7 +17,7 @@ const pool = new pg.Pool({
   max: 5,
 });
 
-const WORRIES = ["hair", "cycle", "sleep", "toddler"];
+const WORRIES = JSON.parse(readFileSync(new URL("./worries.json", import.meta.url), "utf8")).map((w) => w.id);
 const VERDICTS = ["normal", "watch", "doctor"];
 const ANSWERS = ["yes", "sort-of", "no"];
 const TONES = ["cautious", "vague", "right"];

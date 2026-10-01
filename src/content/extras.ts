@@ -17,6 +17,21 @@ export const DONTS: Record<WorryId, string[]> = {
     "Don't take sleeping pills that weren't prescribed for you.",
     "Don't lie there for an hour 'trying'. Get up after about 20 minutes.",
   ],
+  acne: [
+    "Don't pop or squeeze. It pushes bacteria deeper and makes scars more likely.",
+    "Don't switch products every week. Anything needs 6–8 weeks to show results.",
+    "Don't scrub, or wash more than twice a day. Irritated skin breaks out more.",
+  ],
+  dandruff: [
+    "Don't rinse the dandruff shampoo straight off. It needs about 5 minutes on the scalp.",
+    "Don't pile on more oil to 'cure' it. Flakes aren't dryness you can oil away.",
+    "Don't scratch with your nails. A broken scalp gets sore and irritated.",
+  ],
+  reflux: [
+    "Don't lie flat right after eating. Give it 2–3 hours.",
+    "Don't take antacids every single day without talking to a doctor.",
+    "Don't brush off crushing chest pressure as 'just acidity'. That's an emergency check.",
+  ],
   toddler: [
     "Don't force, bribe or chase with the spoon. Pressure makes refusal stronger.",
     "Don't replace the skipped meal with extra milk or biscuits.",
@@ -45,6 +60,20 @@ export const POPULAR: { group: string; items: { q: string; worry: WorryId }[] }[
     items: [
       { q: "Why do I keep waking up at 3 AM?", worry: "sleep" },
       { q: "Raat ko neend nahi aati. What do I do?", worry: "sleep" },
+    ],
+  },
+  {
+    group: "Skin & scalp",
+    items: [
+      { q: "Why am I breaking out all of a sudden?", worry: "acne" },
+      { q: "Dandruff won't go even after anti-dandruff shampoo", worry: "dandruff" },
+    ],
+  },
+  {
+    group: "Stomach",
+    items: [
+      { q: "Why does my chest burn when I lie down after dinner?", worry: "reflux" },
+      { q: "Acidity every night. Is that normal?", worry: "reflux" },
     ],
   },
   {
@@ -86,4 +115,7 @@ export const WORRY_SOURCES: Record<WorryId, string[]> = {
   cycle: ["ccIrregular", "acogTeens"],
   sleep: ["osuWaking", "nsfInsomnia", "aasmInsomnia", "stanfordStimulus"],
   toddler: ["aapPicky", "chopPicky", "aapMilk", "seattlePicky"],
+  acne: ["aadAcneTreat", "aadAcneHabits"],
+  dandruff: ["aadDandruff"],
+  reflux: ["niddkGerdSymptoms", "niddkGerdTreat", "mayoHeartburn"],
 };

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { ChevronDown } from "lucide-react";
 import { WORRIES, type WorryId } from "@/content";
 import { ExampleStrip } from "@/components/ExampleStrip";
 import { History, HowItWorks, Popular, StopTheSpiral } from "@/components/HomeSections";
@@ -11,11 +12,14 @@ import { href } from "@/lib/route";
 import { loadEntries, useStoreVersion } from "@/lib/storage";
 import { stagger } from "@/lib/ui";
 
+const PHONE_CARDS = 4;
+
 export function Home() {
   const now = useNow();
   useStoreVersion(); // re-read tracker progress after a wipe
   const g = greeting(now);
   const [ask, setAsk] = useState("");
+  const [showAll, setShowAll] = useState(false);
   const timer = useRef<number | undefined>(undefined);
   const [request, setRequest] = useState<{ text: string; n: number } | null>(null);
 
@@ -68,8 +72,27 @@ export function Home() {
         <div className="space-y-9 lg:col-span-7 lg:space-y-12 lg:pt-6">
           <section aria-label="Pick a worry" className="space-y-3 lg:grid lg:grid-cols-2 lg:gap-4 lg:space-y-0">
             {WORRIES.map((w, i) => (
-              <WorryCard key={w.id} worry={w} entries={loadEntries(w.id)} style={stagger(i + 2, 80)} />
+              <WorryCard
+                key={w.id}
+                worry={w}
+                entries={loadEntries(w.id)}
+                style={stagger(i + 2, 80)}
+                // Phones show the first few; laptops always show all of them.
+                className={i >= PHONE_CARDS && !showAll ? "hidden lg:flex" : undefined}
+                wide={WORRIES.length % 2 === 1 && i === WORRIES.length - 1}
+              />
             ))}
+            {WORRIES.length > PHONE_CARDS && (
+              <button
+                type="button"
+                onClick={() => setShowAll((s) => !s)}
+                aria-expanded={showAll}
+                className="flex min-h-11 w-full touch-manipulation items-center justify-center gap-2 rounded-full border border-line px-5 text-[15px] font-semibold text-ink-muted transition hover:border-lamp/60 hover:text-lamp active:scale-[0.99] lg:hidden"
+              >
+                {showAll ? "Show fewer worries" : `Show ${WORRIES.length - PHONE_CARDS} more worries`}
+                <ChevronDown className={`size-4 transition-transform ${showAll ? "rotate-180" : ""}`} aria-hidden="true" />
+              </button>
+            )}
           </section>
 
           <div className="animate-fade-up" style={stagger(6, 80)}>

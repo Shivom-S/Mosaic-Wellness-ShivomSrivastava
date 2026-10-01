@@ -1,10 +1,10 @@
-import { WORRY, type Answers, type WorryId } from "@/content";
+import { WORRIES, WORRY, type Answers, type WorryId } from "@/content";
 
 // Answers the AI intake was sure about, handed to the Check screen for one visit.
 // sessionStorage, so it dies with the tab. Read once, then removed.
 
 const key = (id: WorryId) => `1am:prefill:${id}`;
-const IDS: WorryId[] = ["hair", "cycle", "sleep", "toddler"];
+const IDS: WorryId[] = WORRIES.map((w) => w.id);
 
 /** Keeps only answers that match a real question and option, in the shape the flow expects. */
 export function sanitizeAnswers(id: WorryId, raw: unknown): Answers {

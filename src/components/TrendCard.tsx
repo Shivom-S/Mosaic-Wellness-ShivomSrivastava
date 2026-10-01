@@ -9,6 +9,9 @@ const CHART: Record<WorryId, { caption: string; unit: string }> = {
   cycle: { caption: "Days between period starts", unit: "Cycle" },
   sleep: { caption: "Minutes awake each night", unit: "Night" },
   toddler: { caption: "Meal score each day (3 to 9)", unit: "Day" },
+  acne: { caption: "New spots each day", unit: "Day" },
+  dandruff: { caption: "Itch score each day (1 to 3)", unit: "Day" },
+  reflux: { caption: "Burn each night (0 none, 1 mild, 2 bad)", unit: "Night" },
 };
 
 interface TrendCardProps {

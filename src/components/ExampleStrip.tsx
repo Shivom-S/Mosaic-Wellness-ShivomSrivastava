@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { WORRIES } from "@/content";
 import { MiniChart } from "@/components/MiniChart";
 import { href } from "@/lib/route";
+import { cn } from "@/lib/utils";
 
 /** A swipeable row that shows, in seconds, what a couple of weeks of tracking turns into. */
 export function ExampleStrip() {
@@ -25,8 +26,14 @@ export function ExampleStrip() {
 
       {/* pl-5 / scroll-pl-5 match the page gutter, so the first card snaps to the gutter rather than the screen edge; the last card's mr-5 is the trailing space. */}
       <ul className="no-scrollbar -mx-5 mt-4 flex snap-x snap-mandatory scroll-pl-5 gap-3 overflow-x-auto pb-2 pl-5 lg:mx-0 lg:grid lg:snap-none lg:grid-cols-2 lg:overflow-visible lg:p-0">
-        {items.map(({ w, trend, label }) => (
-          <li key={w.id} className="w-[216px] shrink-0 snap-start last:mr-5 lg:w-auto lg:last:mr-0">
+        {items.map(({ w, trend, label }, i) => (
+          <li
+            key={w.id}
+            className={cn(
+              "w-[216px] shrink-0 snap-start last:mr-5 lg:w-auto lg:last:mr-0",
+              items.length % 2 === 1 && i === items.length - 1 && "lg:col-span-2",
+            )}
+          >
             <a
               href={href({ name: "example", id: w.id })}
               className="flex h-full flex-col rounded-[22px] border border-line bg-surface p-4 transition-colors hover:border-lamp/50 hover:bg-surface-2 active:scale-[0.99]"
