@@ -7,9 +7,12 @@ import { btn, stagger } from "@/lib/ui";
 
 const REPO = "https://github.com/Shivom-S/Mosaic-Wellness-ShivomSrivastava";
 
+// A comfortable reading column on laptops; the sources list below breaks out into two columns.
+const COL = "lg:mx-auto lg:max-w-[680px]";
+
 function Block({ title, i, children }: { title: string; i: number; children: ReactNode }) {
   return (
-    <Section title={title} style={stagger(i)}>
+    <Section title={title} style={stagger(i)} className={COL}>
       <div className="space-y-3.5 text-[16px] leading-relaxed text-ink">{children}</div>
     </Section>
   );
@@ -19,8 +22,8 @@ const Em = ({ children }: { children: ReactNode }) => <em className="italic text
 
 export function About() {
   return (
-    <div className="space-y-10">
-      <div className="animate-fade-up">
+    <div className="space-y-10 lg:space-y-12">
+      <div className={`animate-fade-up ${COL}`}>
         <a
           href={href({ name: "home" })}
           aria-label="Back to home"
@@ -33,7 +36,7 @@ export function About() {
         </h1>
       </div>
 
-      <section className="animate-fade-up space-y-3.5 text-[17px] leading-relaxed text-ink" style={stagger(1)}>
+      <section className={`animate-fade-up space-y-3.5 text-[17px] leading-relaxed text-ink ${COL}`} style={stagger(1)}>
         <p>
           People don't wake up wanting a wellness app. They show up at 1 AM with a private worry: hair in the drain, a
           late period, a toddler who won't eat. They type it into a search bar they'd never say out loud to a person.
@@ -54,7 +57,7 @@ export function About() {
         </p>
       </Block>
 
-      <Section title="The decisions" style={stagger(3)}>
+      <Section title="The decisions" style={stagger(3)} className={COL}>
         <ul className="space-y-3 text-[16px] leading-relaxed text-ink">
           {[
             [
@@ -114,11 +117,11 @@ export function About() {
         </p>
       </Block>
 
-      <Section title="Sources" style={stagger(7)}>
+      <Section title="Sources" style={stagger(7)} className="lg:mx-auto lg:max-w-[920px]">
         <Sources grouped collapsible={false} />
       </Section>
 
-      <Section style={stagger(8)}>
+      <Section style={stagger(8)} className={COL}>
         <div className="rounded-[28px] border border-line bg-surface p-5">
           <p className="text-[13px] font-bold uppercase tracking-[0.09em] text-lamp">Built by</p>
           <p className="mt-2 font-display text-[24px] leading-tight">Shivom Srivastava</p>

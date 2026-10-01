@@ -54,3 +54,4 @@ export function matchWorry(text: string): WorryId | null {
 
 export * from "./types";
 export { SOURCES, sourceList } from "./sources";
+export { DONTS, POPULAR, URGENT, WORRY_SOURCES } from "./extras";

@@ -1,8 +1,8 @@
 import { lazy, startTransition, Suspense, useEffect, useRef, useState } from "react";
 import { WORRY } from "@/content";
 import { Toaster } from "@/components/ui/sonner";
-import { QrCard } from "@/components/QrCard";
 import { Shell } from "@/components/Shell";
+import { UrgentHelp } from "@/components/UrgentHelp";
 import { parseHash, routeKey, type Route } from "@/lib/route";
 import { useTheme } from "@/lib/theme";
 import { Check } from "@/screens/Check";
@@ -44,7 +44,7 @@ function Screen({ route }: { route: Route }) {
 
 export default function App() {
   const [route, setRoute] = useState<Route>(() => parseHash(window.location.hash));
-  const { theme, toggle } = useTheme();
+  const { theme, setTheme, comfort, setComfort } = useTheme();
   const first = useRef(true);
 
   // Hash is the source of truth: Back, shared links and in-app <a href="#/…"> all land here.
@@ -68,7 +68,10 @@ export default function App() {
     <>
       <Shell
         theme={theme}
-        onToggleTheme={toggle}
+        onTheme={setTheme}
+        comfort={comfort}
+        onComfort={setComfort}
+        onHome={route.name === "home"}
         stars={route.name === "home" ? "full" : "sides"}
         footer={route.name !== "check"}
       >
@@ -78,7 +81,7 @@ export default function App() {
           </Suspense>
         </div>
       </Shell>
-      <QrCard />
+      <UrgentHelp />
       <Toaster theme={theme === "lamp" ? "light" : "dark"} />
     </>
   );

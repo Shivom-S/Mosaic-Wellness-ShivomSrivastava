@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ArrowLeft } from "lucide-react";
 import { WORRY, type Answers, type HairCount, type WorryId } from "@/content";
+import { AboutCheck } from "@/components/AboutCheck";
 import { HairCounter, NO_HAIRS } from "@/components/HairCounter";
 import { QuestionFlow } from "@/components/QuestionFlow";
 import { replaceRoute } from "@/lib/route";
@@ -37,7 +38,8 @@ export function Check({ id }: { id: WorryId }) {
   const question = qIndex >= 0 ? worry.questions[qIndex] : undefined;
 
   return (
-    <div>
+    <div className="lg:grid lg:grid-cols-12 lg:items-start lg:gap-x-14">
+      <div className="lg:col-span-7">
       <div className="flex items-center gap-2">
         <button
           type="button"
@@ -95,6 +97,9 @@ export function Check({ id }: { id: WorryId }) {
           />
         </div>
       )}
+      </div>
+
+      <AboutCheck worry={worry} steps={steps} step={step} />
     </div>
   );
 }

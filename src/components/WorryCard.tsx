@@ -25,13 +25,13 @@ export function WorryCard({ worry, entries, style }: WorryCardProps) {
   return (
     <article
       style={style}
-      className="group relative animate-fade-up rounded-[28px] border border-line bg-surface px-5 py-4 transition-colors duration-200 hover:border-lamp/50 hover:bg-surface-2 active:scale-[0.99]"
+      className="group relative animate-fade-up rounded-[28px] border border-line bg-surface px-5 py-4 transition duration-200 hover:border-lamp/50 hover:bg-surface-2 active:scale-[0.99] lg:flex lg:flex-col lg:py-5 lg:hover:-translate-y-0.5"
     >
       <a
         href={href({ name: "check", id: worry.id })}
         className="block rounded-[20px] after:absolute after:inset-0 after:rounded-[28px] after:content-['']"
       >
-        <p className="pr-12 font-display text-[26px] italic leading-[1.12] tracking-[-0.01em] text-ink">
+        <p className="pr-12 font-display text-[26px] italic leading-[1.12] tracking-[-0.01em] text-ink lg:min-h-[5.1rem] lg:text-[23px]">
           “{worry.whisper}”
         </p>
         <h2 className="mt-2 text-[12px] font-bold uppercase tracking-[0.09em] text-lamp">{worry.title}</h2>

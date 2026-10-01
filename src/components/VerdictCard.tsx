@@ -52,6 +52,10 @@ export function VerdictCard({ result, count }: VerdictCardProps) {
         {result.headline}
       </h1>
 
+      <p className="relative mt-3 text-[13px] leading-snug text-ink-muted">
+        Based on what you told us. This isn't a diagnosis.
+      </p>
+
       {result.urgency && <p className="relative mt-3 text-[17px] font-bold text-doctor">{result.urgency}</p>}
     </section>
   );

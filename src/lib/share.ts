@@ -4,13 +4,13 @@ import { rng } from "./rng";
 // The share card is the one place in the app where raw hex is allowed: it's painted on a
 // canvas, outside the theme tokens, and always uses the night palette.
 const C = {
-  bg: "#0B0F1A",
-  ink: "#F3EDE2",
-  muted: "#A6ADBE",
-  lamp: "#F5B971",
-  normal: "#8FD3A8",
-  watch: "#F5C26B",
-  doctor: "#F28B7A",
+  bg: "#0B1714",
+  ink: "#EEF0EA",
+  muted: "#A2B3AD",
+  lamp: "#6FD1BC",
+  normal: "#9AD48A",
+  watch: "#EBB866",
+  doctor: "#EF8A78",
 };
 
 const TONE: Record<Verdict, { color: string; line: string }> = {
@@ -106,8 +106,8 @@ export async function renderCard(worry: Worry, verdict: Verdict): Promise<Blob> 
   ctx.fillStyle = C.bg;
   ctx.fillRect(0, 0, W, H);
   const glow = ctx.createRadialGradient(W / 2, -80, 0, W / 2, -80, 920);
-  glow.addColorStop(0, "rgba(245,185,113,0.26)");
-  glow.addColorStop(1, "rgba(245,185,113,0)");
+  glow.addColorStop(0, "rgba(111,209,188,0.22)");
+  glow.addColorStop(1, "rgba(111,209,188,0)");
   ctx.fillStyle = glow;
   ctx.fillRect(0, 0, W, H);
 
@@ -203,7 +203,7 @@ export async function renderCard(worry: Worry, verdict: Verdict): Promise<Blob> 
   ctx.fillText(tone.line, pad, pillY + pillH + 84);
 
   // footer
-  ctx.fillStyle = "rgba(243,237,226,0.14)";
+  ctx.fillStyle = "rgba(238,240,234,0.14)";
   ctx.fillRect(pad, H - 250, W - pad * 2, 2);
   ctx.fillStyle = C.ink;
   ctx.font = `400 40px ${DISPLAY}`;

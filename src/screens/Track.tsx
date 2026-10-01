@@ -26,7 +26,9 @@ export function Track({ id }: { id: WorryId }) {
   // Only before today is logged: pre-fill the form from tonight's hair check (still editable).
   const prefill = useMemo(() => (id === "hair" && !todayEntry ? hairPrefill() : null), [id, todayEntry]);
 
+  // On a laptop the trend is already beside the form, so there's nothing to scroll to.
   const scrollToTrend = () =>
+    !window.matchMedia("(min-width: 1024px)").matches &&
     requestAnimationFrame(() =>
       trendRef.current?.scrollIntoView({
         behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
@@ -63,7 +65,8 @@ export function Track({ id }: { id: WorryId }) {
   const showTrend = tracker.kind === "dates" || entries.length > 0;
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 lg:grid lg:grid-cols-12 lg:items-start lg:gap-x-14 lg:space-y-0">
+      <div className="space-y-8 lg:col-span-7">
       <div className="animate-fade-up">
         <div className="flex items-center gap-2">
           <a
@@ -107,7 +110,7 @@ export function Track({ id }: { id: WorryId }) {
       </Section>
 
       {showTrend && (
-        <div ref={trendRef} className="scroll-mt-4">
+        <div ref={trendRef} className="scroll-mt-4 lg:hidden">
           <TrendCard trend={trend} worryId={id} />
         </div>
       )}
@@ -129,6 +132,23 @@ export function Track({ id }: { id: WorryId }) {
           />
         </div>
       </Section>
+      </div>
+
+      <aside aria-label="Your trend" className="hidden lg:sticky lg:top-24 lg:col-span-5 lg:block">
+        {showTrend ? (
+          <TrendCard trend={trend} worryId={id} />
+        ) : (
+          <div className="animate-fade-up rounded-[28px] border border-dashed border-line px-7 py-10 text-center">
+            <p className="font-display text-[24px] italic leading-snug text-ink">Your trend lands here.</p>
+            <p className="mt-2 text-[15px] leading-relaxed text-ink-muted">
+              Log tonight's entry and the chart starts to draw. {tracker.kind === "daily" ? `${tracker.days} ${tracker.unitLabel}s turns a guess into a pattern.` : ""}
+            </p>
+            <a href={href({ name: "example", id })} className="mt-3 inline-flex min-h-11 items-center text-[15px] font-medium text-lamp underline underline-offset-4">
+              See what it looks like
+            </a>
+          </div>
+        )}
+      </aside>
     </div>
   );
 }

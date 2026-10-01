@@ -12,6 +12,9 @@ interface SourcesProps {
   /** Plain list, no collapsing. */
   collapsible?: boolean;
   defaultOpen?: boolean;
+  /** Controlled mode, so a link elsewhere on the page can open the list. */
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 function SourceLink({ s, showOrg }: { s: Source; showOrg: boolean }) {
@@ -20,7 +23,7 @@ function SourceLink({ s, showOrg }: { s: Source; showOrg: boolean }) {
       href={s.url}
       target="_blank"
       rel="noopener noreferrer"
-      className="group flex min-h-11 items-start justify-between gap-3 rounded-xl py-2.5"
+      className="group flex min-h-11 items-start justify-between gap-3 rounded-xl py-2.5 transition-colors"
     >
       <span className="min-w-0 text-[14px] leading-snug text-ink-muted transition-colors group-hover:text-ink">
         {showOrg && <b className="block font-semibold text-ink">{s.org}</b>}
@@ -47,7 +50,7 @@ function List({ items, grouped }: { items: Source[]; grouped: boolean }) {
   const byOrg = new Map<string, Source[]>();
   items.forEach((s) => byOrg.set(s.org, [...(byOrg.get(s.org) ?? []), s]));
   return (
-    <div className="space-y-5">
+    <div className="space-y-5 lg:grid lg:grid-cols-2 lg:gap-x-10 lg:gap-y-6 lg:space-y-0">
       {[...byOrg.entries()].map(([org, list]) => (
         <div key={org}>
           <h3 className="text-[15px] font-semibold text-ink">{org}</h3>
@@ -64,8 +67,20 @@ function List({ items, grouped }: { items: Source[]; grouped: boolean }) {
   );
 }
 
-export function Sources({ ids, grouped = false, collapsible = true, defaultOpen = false }: SourcesProps) {
-  const [open, setOpen] = useState(defaultOpen);
+export function Sources({
+  ids,
+  grouped = false,
+  collapsible = true,
+  defaultOpen = false,
+  open: controlled,
+  onOpenChange,
+}: SourcesProps) {
+  const [inner, setInner] = useState(defaultOpen);
+  const open = controlled ?? inner;
+  const setOpen = (next: boolean) => {
+    setInner(next);
+    onOpenChange?.(next);
+  };
   const items = ids ? sourceList(ids) : Object.values(SOURCES);
 
   if (!collapsible) return <List items={items} grouped={grouped} />;

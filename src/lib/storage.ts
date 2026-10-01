@@ -29,8 +29,11 @@ export interface SavedCheck {
 
 export const keys = {
   theme: "theme",
+  comfort: "comfort",
+  voiceNote: "voice-note",
   last: (id: WorryId) => `last:${id}`,
   track: (id: WorryId) => `track:${id}`,
+  feedback: (id: WorryId) => `feedback:${id}`,
 };
 
 function read(key: string): string | null {

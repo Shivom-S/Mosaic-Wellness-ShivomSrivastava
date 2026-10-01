@@ -4,40 +4,63 @@
 
 /*
   1AM design tokens.
-  Default = "night" (it's 1 AM, after all). "Lamp on" = warm paper day theme.
+  Default = "night" ("midnight forest": deep green-slate with a teal accent). "Day mode" = pale paper.
+  The token name `lamp` is the accent; data-theme="lamp" is Day mode.
   Colours are space-separated RGB so Tailwind can apply alpha.
 */
 @layer base {
   :root {
-    --bg: 11 15 26;
-    --surface: 20 26 41;
-    --surface-2: 29 37 57;
-    --line: 44 53 77;
-    --ink: 243 237 226;
-    --ink-muted: 166 173 190;
-    --ink-faint: 110 118 138;
-    --lamp: 245 185 113;
-    --on-lamp: 26 20 12;
-    --normal: 143 211 168;
-    --watch: 245 194 107;
-    --doctor: 242 139 122;
+    --bg: 11 23 20;
+    --surface: 18 33 29;
+    --surface-2: 26 44 39;
+    --line: 40 64 58;
+    --ink: 238 240 234;
+    --ink-muted: 162 179 173;
+    --ink-faint: 110 129 123;
+    --lamp: 111 209 188;
+    --on-lamp: 6 32 26;
+    --normal: 154 212 138;
+    --watch: 235 184 102;
+    --doctor: 239 138 120;
     color-scheme: dark;
   }
 
   :root[data-theme="lamp"] {
-    --bg: 247 242 233;
-    --surface: 255 252 246;
-    --surface-2: 238 231 218;
-    --line: 222 212 195;
-    --ink: 28 30 40;
-    --ink-muted: 92 89 84;
-    --ink-faint: 140 134 125;
-    --lamp: 176 104 28;
-    --on-lamp: 255 250 242;
-    --normal: 38 118 76;
-    --watch: 158 98 0;
-    --doctor: 186 66 46;
+    --bg: 244 242 236;
+    --surface: 255 255 255;
+    --surface-2: 234 238 233;
+    --line: 214 222 216;
+    --ink: 16 37 30;
+    --ink-muted: 74 94 87;
+    --ink-faint: 125 142 136;
+    --lamp: 23 128 109;
+    --on-lamp: 255 255 255;
+    --normal: 46 125 60;
+    --watch: 156 98 8;
+    --doctor: 184 64 46;
     color-scheme: light;
+  }
+
+  /* "Easier on the eyes": bigger type, dimmer ink, no stars or glows, no motion. */
+  :root[data-comfort="on"] {
+    font-size: 18px;
+  }
+  :root[data-comfort="on"]:not([data-theme="lamp"]) {
+    --ink: 207 214 208;
+    --ink-muted: 150 166 160;
+  }
+  :root[data-comfort="on"] .starfield,
+  :root[data-comfort="on"] .lamp-glow {
+    display: none !important;
+  }
+  :root[data-comfort="on"] *,
+  :root[data-comfort="on"] *::before,
+  :root[data-comfort="on"] *::after {
+    animation-duration: 0.001ms !important;
+    animation-delay: 0s !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    box-shadow: none !important;
   }
 
   * {
@@ -86,7 +109,7 @@
     font-variant-numeric: tabular-nums;
   }
 
-  /* Soft amber wash from the top edge: the lamp. Quieter in daylight. */
+  /* Soft teal wash from the top edge: moonlight. Quieter in daylight. */
   .lamp-glow {
     background: radial-gradient(
       ellipse 70% 100% at 50% 0%,
