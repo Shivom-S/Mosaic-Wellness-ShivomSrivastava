@@ -58,7 +58,7 @@ export function WipeButton({
         <DialogContent className="w-[calc(100%-2.5rem)] max-w-sm rounded-[28px] border-line bg-surface p-6 sm:rounded-[28px]">
           <div className="space-y-2 pr-6">
             <DialogTitle className="font-display text-2xl font-normal leading-tight">{question}</DialogTitle>
-            <DialogDescription className="text-[15px] leading-relaxed text-ink-muted">{detail}</DialogDescription>
+            <DialogDescription className="text-body text-ink-muted">{detail}</DialogDescription>
           </div>
           <div className="mt-2 flex flex-col gap-2">
             <button type="button" onClick={wipe} className={btn("danger", "w-full")}>

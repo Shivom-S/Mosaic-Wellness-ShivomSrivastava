@@ -9,17 +9,17 @@ export const stagger = (i: number, step = 70): CSSProperties => ({ animationDela
 type Variant = "primary" | "secondary" | "ghost" | "danger";
 
 const BTN_BASE =
-  "inline-flex items-center justify-center gap-2 touch-manipulation select-none whitespace-nowrap transition duration-150 disabled:pointer-events-none disabled:opacity-40";
+  "inline-flex items-center justify-center gap-2 touch-manipulation select-none whitespace-nowrap transition duration-75 disabled:pointer-events-none disabled:opacity-40";
 
 const BTN: Record<Variant, string> = {
   primary:
-    "min-h-[52px] rounded-full bg-lamp px-6 text-[15px] font-semibold text-on-lamp hover:brightness-110 active:scale-[0.98]",
+    "min-h-[52px] rounded-full bg-lamp px-6 text-body font-semibold text-on-lamp hover:brightness-110 active:scale-[0.98]",
   secondary:
-    "min-h-[48px] rounded-full border border-line bg-surface px-5 text-[15px] font-medium text-ink hover:bg-surface-2 active:scale-[0.98]",
+    "min-h-12 rounded-full border border-line bg-surface px-5 text-body font-medium text-ink hover:bg-surface-2 active:scale-[0.98]",
   ghost:
-    "min-h-11 rounded-xl px-1 text-sm text-ink-muted underline decoration-line decoration-1 underline-offset-4 hover:text-ink",
+    "min-h-12 rounded-xl px-1 text-small text-ink-muted underline decoration-line decoration-1 underline-offset-4 hover:text-ink",
   danger:
-    "min-h-[48px] rounded-full border border-doctor/40 bg-doctor/10 px-5 text-[15px] font-medium text-doctor hover:bg-doctor/15 active:scale-[0.98]",
+    "min-h-12 rounded-full border border-doctor/40 bg-doctor/10 px-5 text-body font-medium text-doctor hover:bg-doctor/15 active:scale-[0.98]",
 };
 
 /** One button look for both <button> and <a>. */

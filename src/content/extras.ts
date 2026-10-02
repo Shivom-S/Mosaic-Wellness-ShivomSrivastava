@@ -39,50 +39,15 @@ export const DONTS: Record<WorryId, string[]> = {
   ],
 };
 
-// "Popular at 1 AM" — example questions, each routed to a worry we actually cover.
-export const POPULAR: { group: string; items: { q: string; worry: WorryId }[] }[] = [
-  {
-    group: "Hair",
-    items: [
-      { q: "Why am I suddenly losing so much hair?", worry: "hair" },
-      { q: "Baal bahut gir rahe hain, is it normal?", worry: "hair" },
-    ],
-  },
-  {
-    group: "Periods",
-    items: [
-      { q: "My period is 10 days late. Should I worry?", worry: "cycle" },
-      { q: "Are irregular periods a sign of PCOS?", worry: "cycle" },
-    ],
-  },
-  {
-    group: "Sleep",
-    items: [
-      { q: "Why do I keep waking up at 3 AM?", worry: "sleep" },
-      { q: "Raat ko neend nahi aati. What do I do?", worry: "sleep" },
-    ],
-  },
-  {
-    group: "Skin & scalp",
-    items: [
-      { q: "Why am I breaking out all of a sudden?", worry: "acne" },
-      { q: "Dandruff won't go even after anti-dandruff shampoo", worry: "dandruff" },
-    ],
-  },
-  {
-    group: "Stomach",
-    items: [
-      { q: "Why does my chest burn when I lie down after dinner?", worry: "reflux" },
-      { q: "Acidity every night. Is that normal?", worry: "reflux" },
-    ],
-  },
-  {
-    group: "Kids",
-    items: [
-      { q: "My toddler barely eats. Is that okay?", worry: "toddler" },
-      { q: "My son only wants milk. Is that a problem?", worry: "toddler" },
-    ],
-  },
+// Home's example question cells (UI only). Each one opens that worry's check directly.
+export const QUICK_QUESTIONS: { label: string; worry: WorryId }[] = [
+  { label: "Losing more hair than usual", worry: "hair" },
+  { label: "My period is late or irregular", worry: "cycle" },
+  { label: "Can't sleep through the night", worry: "sleep" },
+  { label: "My child won't eat", worry: "toddler" },
+  { label: "Sudden breakouts", worry: "acne" },
+  { label: "Itchy, flaky scalp", worry: "dandruff" },
+  { label: "Acidity after meals", worry: "reflux" },
 ];
 
 // Urgent-help sheet. Deliberately short and non-diagnostic.

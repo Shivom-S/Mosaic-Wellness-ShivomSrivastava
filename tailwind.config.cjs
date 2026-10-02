@@ -37,6 +37,11 @@ module.exports = {
         display: ['"Fraunces Variable"', "Georgia", "serif"],
         sans: ['"Figtree Variable"', "system-ui", "-apple-system", "Segoe UI", "Roboto", "sans-serif"],
       },
+      fontSize: {
+        // 17px on phones, 18px on laptops (see --fs-body). `small` is the 14px floor.
+        body: ["var(--fs-body)", { lineHeight: "1.55" }],
+        small: ["0.875rem", { lineHeight: "1.5" }],
+      },
       borderRadius: {
         lg: "1rem",
         md: "0.75rem",

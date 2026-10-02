@@ -10,8 +10,8 @@ export function Crescent({ className }: { className?: string }) {
 
 export function Logo({ className }: { className?: string }) {
   return (
-    <span className={cn("inline-flex items-center gap-2 font-display text-[26px] leading-none tracking-tight", className)}>
-      <Crescent className="text-[22px]" />
+    <span className={cn("inline-flex items-center gap-2 font-display text-[1.375rem] leading-none tracking-tight lg:text-[1.625rem]", className)}>
+      <Crescent className="text-[1.1875rem] lg:text-[1.375rem]" />
       <span>1AM</span>
     </span>
   );

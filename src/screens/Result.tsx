@@ -1,8 +1,8 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { DONTS, WORRY, type WorryId } from "@/content";
+import { Disclosure } from "@/components/Disclosure";
 import { Feedback } from "@/components/Feedback";
 import { CHIP, ResultView } from "@/components/ResultView";
-import { Section } from "@/components/Section";
 import { Sources } from "@/components/Sources";
 import { WipeButton } from "@/components/WipeButton";
 import { href, replaceRoute } from "@/lib/route";
@@ -12,7 +12,6 @@ import { btn } from "@/lib/ui";
 export function Result({ id }: { id: WorryId }) {
   const worry = WORRY[id];
   const saved = useMemo(() => loadLast(id), [id]);
-  const [trustOpen, setTrustOpen] = useState(false);
 
   useEffect(() => {
     if (!saved) replaceRoute({ name: "check", id });
@@ -26,45 +25,13 @@ export function Result({ id }: { id: WorryId }) {
     tracker.kind === "dates" ? "Log your period dates" : `Track it for ${tracker.days} ${tracker.unitLabel}s`;
   const exampleLabel =
     tracker.kind === "dates" ? "See what a few cycles look like" : `See what ${tracker.days} ${tracker.unitLabel}s looks like`;
-
-  const showTrust = () => {
-    setTrustOpen(true);
-    requestAnimationFrame(() =>
-      document.getElementById("trust")?.scrollIntoView({
-        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
-        block: "start",
-      }),
-    );
-  };
-
-  const deeper = (
-    <Section title="Want to dig a little deeper?">
-      <div className="flex flex-wrap gap-2">
-        <a href={href({ name: "track", id })} className={CHIP}>
-          {trackLabel}
-        </a>
-        <a href={href({ name: "example", id })} className={CHIP}>
-          {exampleLabel}
-        </a>
-        <a href={href({ name: "home" })} className={CHIP}>
-          Check a different worry
-        </a>
-        <button type="button" onClick={showTrust} className={CHIP}>
-          Why should I trust this?
-        </button>
-      </div>
-    </Section>
-  );
+  const trackHref = href({ name: "track", id });
+  const exampleHref = href({ name: "example", id });
 
   const trust = (
-    <section id="trust" className="scroll-mt-6">
-      <Section title="Why should I trust this?">
-        <p className="-mt-1 mb-2 text-[14px] leading-relaxed text-ink-muted">
-          Every number here comes from a published source. Have a look.
-        </p>
-        <Sources ids={result.sources} open={trustOpen} onOpenChange={setTrustOpen} />
-      </Section>
-    </section>
+    <Disclosure title="Why should I trust this?" summary="Every number comes from a published source">
+      <Sources ids={result.sources} />
+    </Disclosure>
   );
 
   return (
@@ -76,14 +43,24 @@ export function Result({ id }: { id: WorryId }) {
       share={worry}
       count={count}
       asideAction={
-        <a href={href({ name: "track", id })} className={btn(result.suggestTracking ? "primary" : "secondary", "w-full")}>
-          {trackLabel} →
+        <div className="space-y-2">
+          <a href={trackHref} className={btn(result.suggestTracking ? "primary" : "secondary", "w-full")}>
+            {trackLabel} →
+          </a>
+          <a href={exampleHref} className={btn("ghost", "w-full no-underline")}>
+            {exampleLabel}
+          </a>
+        </div>
+      }
+      next={{ label: "Track it", href: trackHref }}
+      more={
+        <a href={exampleHref} className={CHIP}>
+          {exampleLabel}
         </a>
       }
-      deeper={deeper}
       feedback={<Feedback worryId={id} verdict={result.verdict} />}
       trust={trust}
-      checkAgainHref={href({ name: "check", id })}
+      checkElse={{ href: href({ name: "home" }) }}
       wipe={
         <WipeButton
           scope={[keys.last(id), keys.feedback(id)]}

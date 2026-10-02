@@ -26,16 +26,16 @@ export function Example({ id }: { id: WorryId }) {
           <a
             href={href({ name: "home" })}
             aria-label="Back to home"
-            className="-ml-2 inline-flex size-11 items-center justify-center rounded-full text-ink-muted transition-colors hover:bg-surface hover:text-ink"
+            className="-ml-2 inline-flex size-12 items-center justify-center rounded-full text-ink-muted transition-colors hover:bg-surface hover:text-ink"
           >
             <ArrowLeft className="size-5" aria-hidden="true" />
           </a>
 
-          <p className="mt-2 inline-flex items-center rounded-full border border-dashed border-ink-faint px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-[0.09em] text-ink-muted">
+          <p className="mt-2 inline-flex items-center rounded-full border border-dashed border-ink-faint px-3.5 py-1.5 text-small font-bold uppercase tracking-[0.05em] text-ink-muted">
             Example · not a real person
           </p>
-          <h1 className="mt-4 font-display text-[32px] italic leading-[1.1] tracking-[-0.01em] lg:text-[44px]">{persona}</h1>
-          <p className="mt-3 text-[16px] leading-relaxed text-ink-muted lg:text-[17px]">{example.context}</p>
+          <h1 className="mt-4 font-display text-[2rem] italic leading-[1.1] tracking-[-0.01em] lg:text-[2.75rem]">{persona}</h1>
+          <p className="mt-3 text-body text-ink-muted">{example.context}</p>
         </div>
 
         {/* Phone: the trend follows the story. Laptop: it sits beside it (below). */}
@@ -56,13 +56,13 @@ export function Example({ id }: { id: WorryId }) {
               Start my own check →
             </a>
             <div>
-              <p className="mb-2.5 text-[13px] font-bold uppercase tracking-[0.09em] text-ink-faint">See other examples</p>
+              <p className="mb-2.5 text-small font-bold uppercase tracking-[0.06em] text-ink-muted">See other examples</p>
               <div className="flex flex-wrap gap-2">
                 {WORRIES.filter((w) => w.id !== id).map((w) => (
                   <a
                     key={w.id}
                     href={href({ name: "example", id: w.id })}
-                    className="inline-flex min-h-11 items-center rounded-full border border-line bg-surface px-4 text-[14px] text-ink transition-colors hover:border-lamp/60 hover:bg-surface-2"
+                    className="inline-flex min-h-12 items-center rounded-full border border-line bg-surface px-4 text-small text-ink transition-colors hover:border-lamp/60 hover:bg-surface-2"
                   >
                     {w.title}
                   </a>
@@ -74,7 +74,7 @@ export function Example({ id }: { id: WorryId }) {
       </div>
 
       <aside aria-label="The trend" className="hidden animate-fade-up lg:sticky lg:top-24 lg:col-span-5 lg:block">
-        <p className="mb-3 font-display text-[22px] leading-snug">{span}, in one glance</p>
+        <p className="mb-3 font-display text-[1.375rem] leading-snug">{span}, in one glance</p>
         <DotStrip
           total={trend.dots.length}
           dots={trend.dots}

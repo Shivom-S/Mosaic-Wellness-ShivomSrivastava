@@ -78,7 +78,7 @@ export function MiniChart({ series, tones, reference, caption, startLabel, endLa
       </svg>
 
       {!compact && (startLabel || endLabel) && (
-        <figcaption className="mt-2 flex justify-between text-[11px] tracking-wide text-ink-faint">
+        <figcaption className="mt-2 flex justify-between text-small tracking-wide text-ink-muted">
           <span>{startLabel}</span>
           <span>{endLabel}</span>
         </figcaption>

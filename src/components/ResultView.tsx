@@ -1,7 +1,8 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { toast } from "sonner";
-import { LifeBuoy, RotateCcw, Share2, Stethoscope } from "lucide-react";
-import { VERDICT_COPY, type HairCount, type Result, type Verdict } from "@/content";
+import { ChevronDown, LifeBuoy, Share2, Stethoscope } from "lucide-react";
+import type { HairCount, Result, Verdict } from "@/content";
+import { Disclosure } from "@/components/Disclosure";
 import { DoctorNote } from "@/components/DoctorNote";
 import { RedFlags } from "@/components/RedFlags";
 import { Section } from "@/components/Section";
@@ -12,80 +13,86 @@ import { renderCard, shareResult, type ShareTarget } from "@/lib/share";
 import { btn, stagger } from "@/lib/ui";
 import { openUrgent } from "@/lib/urgent";
 
-/** Chip look shared by the "dig deeper" rows on both result screens. */
+/** Chip look shared by the small link rows on both result screens. */
 export const CHIP =
-  "inline-flex min-h-11 touch-manipulation items-center rounded-full border border-line bg-surface px-4 text-[14px] text-ink transition duration-150 hover:border-lamp/60 hover:bg-surface-2 active:scale-[0.98]";
+  "inline-flex min-h-12 touch-manipulation items-center rounded-full border border-line bg-surface px-4 text-small text-ink transition duration-75 hover:border-lamp/60 hover:bg-surface-2 active:scale-[0.98]";
 
-function ShareBlock({ worry, verdict, compact = false }: { worry: ShareTarget; verdict: Verdict; compact?: boolean }) {
-  const [card, setCard] = useState<{ blob: Blob; url: string } | null>(null);
+/** One compact row. The card is drawn up front so the share sheet opens instantly. */
+function ShareRow({ worry, verdict }: { worry: ShareTarget; verdict: Verdict }) {
+  const [card, setCard] = useState<Blob | null>(null);
   const [busy, setBusy] = useState(false);
 
-  // Draw the card up front: it's what we show, and it makes the share sheet instant.
   useEffect(() => {
     let dead = false;
-    let url: string | undefined;
     renderCard(worry, verdict)
-      .then((blob) => {
-        if (dead) return;
-        url = URL.createObjectURL(blob);
-        setCard({ blob, url });
-      })
+      .then((blob) => !dead && setCard(blob))
       .catch(() => undefined);
     return () => {
       dead = true;
-      if (url) URL.revokeObjectURL(url);
     };
   }, [worry, verdict]);
 
   const share = async () => {
     setBusy(true);
-    const outcome = await shareResult(worry, verdict, card?.blob);
+    const outcome = await shareResult(worry, verdict, card ?? undefined);
     setBusy(false);
     if (outcome === "whatsapp") toast("Opening WhatsApp. The link is in the message.");
     else if (outcome === "copied") toast("Link copied. Paste it wherever they are.");
     else if (outcome === "failed") toast("Couldn't share from here. Copy the link from the address bar instead.");
   };
 
-  const button = (
-    <button type="button" onClick={share} disabled={busy} className={btn(compact ? "secondary" : "primary", "w-full")}>
-      <Share2 className="size-4" aria-hidden="true" />
-      {busy ? "Getting the card ready…" : compact ? "Send it to someone worrying too" : "Send it on"}
-    </button>
-  );
-
-  if (compact) {
-    return (
-      <div>
-        {button}
-        <p className="mt-2 text-[13px] leading-snug text-ink-faint">
-          The card has no numbers and nothing personal on it. Opens your share sheet, or WhatsApp.
-        </p>
-      </div>
-    );
-  }
-
   return (
-    <div>
-      <p className="-mt-1 mb-4 text-[15px] leading-relaxed text-ink-muted">
-        The card has no numbers and nothing personal on it. Just the worry and the verdict.
+    <div className="flex items-center justify-between gap-3 rounded-[22px] border border-line bg-surface p-4">
+      <p className="min-w-0">
+        <span className="block font-display text-[1.1875rem] leading-snug text-ink">Know someone worrying too?</span>
+        <span className="block text-small text-ink-muted">The card has no numbers or personal details.</span>
       </p>
-      <div className="flex items-center gap-5">
-        <div className="aspect-[4/5] w-[132px] shrink-0 -rotate-2 overflow-hidden rounded-2xl border border-line bg-surface-2 shadow-lg">
-          {card && (
-            <img
-              src={card.url}
-              alt={`Share card: I checked at 1 AM. ${worry.title}. ${VERDICT_COPY[verdict].label}.`}
-              className="size-full animate-fade-up object-cover"
-            />
-          )}
-        </div>
-        <div className="min-w-0 flex-1">
-          {button}
-          <p className="mt-2.5 text-[13px] leading-snug text-ink-faint">Opens your share sheet, or WhatsApp.</p>
-        </div>
-      </div>
+      <button type="button" onClick={share} disabled={busy} className={btn("secondary", "shrink-0")}>
+        <Share2 className="size-4" aria-hidden="true" />
+        {busy ? "Preparing" : "Share"}
+      </button>
     </div>
   );
+}
+
+/** The first paragraph, with the rest one tap away. */
+function Explainer({ paragraphs }: { paragraphs: string[] }) {
+  const [more, setMore] = useState(false);
+  const [first, ...rest] = paragraphs;
+
+  return (
+    <Section title="What might be going on">
+      <div className="space-y-3.5 text-body text-ink">
+        <p>{first}</p>
+        {more && rest.map((p, k) => <p key={k}>{p}</p>)}
+      </div>
+      {rest.length > 0 && (
+        <button
+          type="button"
+          aria-expanded={more}
+          onClick={() => setMore((m) => !m)}
+          className="mt-1 inline-flex min-h-12 touch-manipulation items-center gap-1.5 rounded-xl text-body font-semibold text-lamp underline-offset-4 hover:underline"
+        >
+          {more ? "Show less" : "Read more"}
+          <ChevronDown className={`size-4 transition-transform duration-200 ${more ? "rotate-180" : ""}`} aria-hidden="true" />
+        </button>
+      )}
+    </Section>
+  );
+}
+
+/** True while the element is on screen. `layout` re-attaches it when the element is re-created. */
+function useOnScreen(layout: unknown) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [on, setOn] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || !("IntersectionObserver" in window)) return;
+    const io = new IntersectionObserver(([e]) => setOn(e.isIntersecting));
+    io.observe(el);
+    return () => io.disconnect();
+  }, [layout]);
+  return [ref, on] as const;
 }
 
 interface ResultViewProps {
@@ -100,15 +107,18 @@ interface ResultViewProps {
   count?: HairCount;
   /** Marks the verdict card and the doctor summary as AI-written. */
   ai?: boolean;
-  /** Laptop only: the main call to action above the share button (curated: the tracker). */
+  /** Laptop only: the main call to action under the verdict (curated: the tracker). */
   asideAction?: ReactNode;
-  /** The "dig a little deeper" section. */
-  deeper: ReactNode;
-  /** The feedback widget. */
+  /** The main next action. Sits in a slim bar at the bottom of a phone screen. */
+  next: { label: string; href: string };
+  /** Phone only: an extra row of small links above the accordions (curated: the example). */
+  more?: ReactNode;
+  /** The feedback row. */
   feedback: ReactNode;
-  /** The "Why should I trust this?" section. */
+  /** The "Why should I trust this?" accordion. */
   trust: ReactNode;
-  checkAgainHref: string;
+  /** "Check something else": where it goes, and anything to do on the way. */
+  checkElse: { href: string; onClick?: () => void };
   /** A WipeButton for this result. */
   wipe: ReactNode;
 }
@@ -123,38 +133,26 @@ export function ResultView({
   count,
   ai = false,
   asideAction,
-  deeper,
+  next,
+  more,
   feedback,
   trust,
-  checkAgainHref,
+  checkElse,
   wipe,
 }: ResultViewProps) {
   const desktop = useDesktop();
-
-  const eyebrow = (
-    <p className="mb-3 text-[13px] font-bold uppercase tracking-[0.09em] text-lamp">Here's the honest answer.</p>
-  );
+  const [closingRef, closingOn] = useOnScreen(desktop);
 
   const verdict = <VerdictCard result={result} count={count} ai={ai} />;
 
   const whoToSee = result.whoToSee ? (
-    <p className="flex items-start gap-3 rounded-2xl bg-surface-2 px-4 py-3.5 text-[16px] leading-snug text-ink">
-      <Stethoscope className="mt-0.5 size-5 shrink-0 text-lamp" aria-hidden="true" />
+    <p className="flex items-start gap-3 rounded-[22px] bg-surface-2 px-4 py-3.5 text-body text-ink">
+      <Stethoscope className="mt-[0.2em] size-5 shrink-0 text-lamp" aria-hidden="true" />
       <span>
         Who to see: <b className="font-semibold">{result.whoToSee}</b>
       </span>
     </p>
   ) : null;
-
-  const explainer = (
-    <Section title="What might be going on">
-      <div className="space-y-3.5 text-[17px] leading-relaxed text-ink">
-        {result.explainer.map((p, k) => (
-          <p key={k}>{p}</p>
-        ))}
-      </div>
-    </Section>
-  );
 
   const tonight = (
     <Section title="What to do tonight">
@@ -162,19 +160,22 @@ export function ResultView({
     </Section>
   );
 
+  const explainer = <Explainer paragraphs={result.explainer} />;
+
   const dontSection = (
-    <Section title="Tonight, don't">
+    <Disclosure title="Tonight, don't" summary={`${donts.length} things to skip tonight`}>
       <Donts items={donts} />
-    </Section>
+    </Disclosure>
   );
 
+  // Safety stays open: it is the one section nobody should have to hunt for.
   const flags = (
     <Section title="When to get help">
       <RedFlags flags={result.redFlags} />
       <button
         type="button"
         onClick={openUrgent}
-        className="mt-3 inline-flex min-h-11 items-center gap-2 rounded-xl text-[15px] font-medium text-doctor underline decoration-doctor/40 underline-offset-4 transition-colors hover:decoration-doctor"
+        className="mt-2 inline-flex min-h-12 items-center gap-2 rounded-xl text-body font-medium text-doctor underline decoration-doctor/40 underline-offset-4 transition-colors hover:decoration-doctor"
       >
         <LifeBuoy className="size-4" aria-hidden="true" />
         See the urgent-help signs
@@ -182,17 +183,14 @@ export function ResultView({
     </Section>
   );
 
-  const doctor = <DoctorNote title={title} result={result} at={at} ai={ai} defaultOpen={result.verdict === "doctor"} />;
+  const doctor = <DoctorNote title={title} result={result} at={at} ai={ai} />;
 
-  const feedbackSection = <Section>{feedback}</Section>;
-
-  const bottomRow = (
-    <div className="-ml-1 flex flex-wrap items-center justify-between gap-x-4 border-t border-line pt-3">
-      <a href={checkAgainHref} className={btn("ghost", "gap-1.5 no-underline")}>
-        <RotateCcw className="size-3.5" aria-hidden="true" />
-        Check again
+  const closing = (
+    <div ref={closingRef} className="space-y-4 border-t border-line pt-6">
+      <p className="font-display text-[1.375rem] italic leading-snug text-ink-muted">You have what you need for tonight.</p>
+      <a href={checkElse.href} onClick={checkElse.onClick} className={btn("primary", "w-full lg:w-auto lg:px-8")}>
+        Check something else
       </a>
-      {wipe}
     </div>
   );
 
@@ -206,55 +204,55 @@ export function ResultView({
   if (desktop) {
     return (
       <div className="grid grid-cols-12 items-start gap-x-14">
-        <aside className="sticky top-24 col-span-5 space-y-4">
-          {stack([
-            <>
-              {eyebrow}
-              {verdict}
-            </>,
-            whoToSee,
-            <div className="space-y-3">
-              {asideAction}
-              <ShareBlock worry={share} verdict={result.verdict} compact />
-            </div>,
-            <div className="-ml-1 flex flex-wrap items-center justify-between gap-x-4">
-              <a href={checkAgainHref} className={btn("ghost", "gap-1.5 no-underline")}>
-                <RotateCcw className="size-3.5" aria-hidden="true" />
-                Check again
-              </a>
-              {wipe}
-            </div>,
-          ])}
-        </aside>
+        <aside className="sticky top-24 col-span-5 space-y-4">{stack([verdict, whoToSee, asideAction])}</aside>
 
-        <div className="col-span-7 space-y-9 pt-9">
-          {stack([explainer, tonight, dontSection, flags, doctor, deeper, feedbackSection, trust])}
+        <div className="col-span-7 space-y-7">
+          {stack([
+            tonight,
+            explainer,
+            dontSection,
+            flags,
+            doctor,
+            trust,
+            feedback,
+            <ShareRow worry={share} verdict={result.verdict} />,
+            <div className="-ml-1">{wipe}</div>,
+            closing,
+          ])}
         </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-9">
+    <div className="space-y-7 pb-20">
       {stack([
-        <>
-          {eyebrow}
-          {verdict}
-        </>,
-        explainer,
+        verdict,
         tonight,
+        explainer,
         dontSection,
         flags,
         whoToSee,
         doctor,
-        deeper,
-        feedbackSection,
-        <Section title="Send to someone who's worrying about the same thing">
-          <ShareBlock worry={share} verdict={result.verdict} />
-        </Section>,
+        more,
         trust,
-        bottomRow,
+        feedback,
+        <ShareRow worry={share} verdict={result.verdict} />,
+        <div className="-ml-1">{wipe}</div>,
+        closing,
       ])}
+
+      {/* Slim bar with the main next action. It steps aside once the closing button is on screen. */}
+      <div
+        inert={closingOn}
+        className={`fixed inset-x-0 bottom-0 z-30 border-t border-line bg-bg px-4 pt-3 pb-[max(env(safe-area-inset-bottom),0.75rem)] transition-transform duration-200 ${closingOn ? "translate-y-full" : ""}`}
+      >
+        <div className="mx-auto max-w-[480px]">
+          <a href={next.href} className={btn("primary", "w-full")}>
+            {next.label}
+          </a>
+        </div>
+      </div>
     </div>
   );
 }

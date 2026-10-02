@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeft } from "lucide-react";
 import type { Answers } from "@/content";
 import { aiAnswer } from "@/lib/api";
 import { AiAbout } from "@/components/AiAbout";
 import { QuestionFlow } from "@/components/QuestionFlow";
+import { StepProgress } from "@/components/StepProgress";
 import { replaceRoute } from "@/lib/route";
 import { loadAiPending, saveAiResult } from "@/lib/storage";
 import { btn } from "@/lib/ui";
@@ -57,13 +57,13 @@ export function AiCheck() {
 
   const onLast = step === steps - 1;
   const status = !onLast ? undefined : busy ? (
-    <p role="status" className="flex min-h-[52px] items-center justify-center gap-3 text-[16px] text-ink-muted">
+    <p role="status" className="flex min-h-[52px] items-center justify-center gap-3 text-body text-ink-muted">
       <span aria-hidden="true" className="size-2 animate-pulse rounded-full bg-lamp" />
       Putting your answer together…
     </p>
   ) : failed ? (
     <div role="alert" className="rounded-2xl border border-line bg-surface px-4 py-4">
-      <p className="text-[15px] leading-relaxed text-ink">
+      <p className="text-body text-ink">
         Unable to put your answer together right now. Your answers are still here, so try again.
       </p>
       <button type="button" onClick={() => void finish(answers)} className={btn("primary", "mt-3 w-full")}>
@@ -75,34 +75,13 @@ export function AiCheck() {
   return (
     <div className="lg:grid lg:grid-cols-12 lg:items-start lg:gap-x-14">
       <div className="lg:col-span-7">
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={back}
-            aria-label={step === 0 ? "Back to home" : "Previous question"}
-            className="-ml-2 inline-flex size-11 shrink-0 items-center justify-center rounded-full text-ink-muted transition-colors hover:bg-surface hover:text-ink"
-          >
-            <ArrowLeft className="size-5" aria-hidden="true" />
-          </button>
-          <p className="min-w-0 flex-1 truncate text-sm font-medium text-ink-muted">{check.title}</p>
-          <p className="num text-sm text-ink-faint">
-            {step + 1} of {steps}
-          </p>
-        </div>
-
-        <div
-          role="progressbar"
-          aria-label="Progress"
-          aria-valuemin={1}
-          aria-valuemax={steps}
-          aria-valuenow={step + 1}
-          className="mb-8 mt-2 h-1 overflow-hidden rounded-full bg-line"
-        >
-          <div
-            className="h-full rounded-full bg-lamp transition-[width] duration-300 ease-out"
-            style={{ width: `${((step + 1) / steps) * 100}%` }}
-          />
-        </div>
+        <StepProgress
+          title={check.title}
+          step={step}
+          steps={steps}
+          backLabel={step === 0 ? "Back to home" : "Previous question"}
+          onBack={back}
+        />
 
         <div key={`${question.id}-${attempt}`} className="animate-fade-up">
           <QuestionFlow

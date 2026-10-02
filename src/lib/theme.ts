@@ -3,6 +3,7 @@ import { keys, store } from "./storage";
 
 /** "lamp" is the stored value for Day mode (kept so saved preferences keep working). */
 export type Theme = "night" | "lamp";
+export type TextSize = "normal" | "large";
 
 function apply(theme: Theme) {
   const root = document.documentElement;
@@ -11,11 +12,10 @@ function apply(theme: Theme) {
   syncChrome();
 }
 
-function applyComfort(on: boolean) {
+function applyTextSize(size: TextSize) {
   const root = document.documentElement;
-  if (on) root.dataset.comfort = "on";
-  else delete root.dataset.comfort;
-  syncChrome();
+  if (size === "large") root.dataset.textsize = "large";
+  else delete root.dataset.textsize;
 }
 
 // Keep the browser chrome in step with the page. We read the --bg token rather than
@@ -26,37 +26,47 @@ function syncChrome() {
   if (meta && bg) meta.setAttribute("content", `rgb(${bg})`);
 }
 
+/** The system's preference decides on a first visit. A saved choice always wins. */
+function systemTheme(): Theme {
+  try {
+    return window.matchMedia("(prefers-color-scheme: light)").matches ? "lamp" : "night";
+  } catch {
+    return "night";
+  }
+}
+
 export function readTheme(): Theme {
-  return store.get<Theme>(keys.theme) === "lamp" ? "lamp" : "night";
+  const saved = store.get<Theme>(keys.theme);
+  return saved === "lamp" || saved === "night" ? saved : systemTheme();
 }
 
-export function readComfort(): boolean {
-  return store.get<string>(keys.comfort) === "on";
+export function readTextSize(): TextSize {
+  return store.get<string>(keys.textsize) === "large" ? "large" : "normal";
 }
 
-/** Call before first render so there's no flash of the wrong theme. */
+/** Call before first render so there's no flash of the wrong theme or size. */
 export function initTheme() {
   apply(readTheme());
-  applyComfort(readComfort());
+  applyTextSize(readTextSize());
 }
 
 export function useTheme() {
   const [theme, setThemeState] = useState<Theme>(readTheme);
-  const [comfort, setComfortState] = useState<boolean>(readComfort);
+  const [textSize, setTextSizeState] = useState<TextSize>(readTextSize);
 
   useEffect(() => {
     apply(theme);
   }, [theme]);
 
   useEffect(() => {
-    applyComfort(comfort);
-  }, [comfort]);
+    applyTextSize(textSize);
+  }, [textSize]);
 
   // "Wipe everything" removes the stored preferences; go back to the defaults to match.
   useEffect(() => {
     const onChange = () => {
-      if (store.get<Theme>(keys.theme) === null) setThemeState("night");
-      if (store.get<string>(keys.comfort) === null) setComfortState(false);
+      if (store.get<Theme>(keys.theme) === null) setThemeState(systemTheme());
+      if (store.get<string>(keys.textsize) === null) setTextSizeState("normal");
     };
     window.addEventListener("1am:change", onChange);
     return () => window.removeEventListener("1am:change", onChange);
@@ -67,11 +77,11 @@ export function useTheme() {
     setThemeState(next);
   }, []);
 
-  const setComfort = useCallback((on: boolean) => {
-    if (on) store.set(keys.comfort, "on");
-    else store.remove(keys.comfort);
-    setComfortState(on);
+  const setTextSize = useCallback((next: TextSize) => {
+    if (next === "large") store.set(keys.textsize, "large");
+    else store.remove(keys.textsize);
+    setTextSizeState(next);
   }, []);
 
-  return { theme, setTheme, comfort, setComfort };
+  return { theme, setTheme, textSize, setTextSize };
 }

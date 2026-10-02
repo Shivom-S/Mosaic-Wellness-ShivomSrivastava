@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import { ArrowLeft, X } from "lucide-react";
+import { X } from "lucide-react";
 import { WORRY, type Answers, type HairCount, type Worry, type WorryId } from "@/content";
 import { AboutCheck } from "@/components/AboutCheck";
 import { HairCounter, NO_HAIRS } from "@/components/HairCounter";
 import { QuestionFlow } from "@/components/QuestionFlow";
+import { StepProgress } from "@/components/StepProgress";
 import { readPrefill, removePrefill } from "@/lib/prefill";
 import { replaceRoute } from "@/lib/route";
 import { keys, store, type SavedCheck } from "@/lib/storage";
@@ -22,10 +23,10 @@ function PrefillChips({ worry, answers, only, labelled }: { worry: Worry; answer
     <ul className="space-y-2.5">
       {rows.map((r) => (
         <li key={r.id}>
-          {labelled && <p className="mb-1.5 text-[13px] leading-snug text-ink-muted">{r.prompt}</p>}
+          {labelled && <p className="mb-1.5 text-small text-ink-muted">{r.prompt}</p>}
           <div className="flex flex-wrap gap-2">
             {r.labels.map((l) => (
-              <span key={l} className="rounded-full border border-lamp/40 bg-surface px-3 py-1.5 text-[14px] leading-snug text-ink">
+              <span key={l} className="rounded-full border border-lamp/40 bg-surface px-3 py-1.5 text-small text-ink">
                 {l}
               </span>
             ))}
@@ -106,46 +107,28 @@ export function Check({ id }: { id: WorryId }) {
   return (
     <div className="lg:grid lg:grid-cols-12 lg:items-start lg:gap-x-14">
       <div className="lg:col-span-7">
-      <div className="flex items-center gap-2">
-        <button
-          type="button"
-          onClick={back}
-          aria-label={!reviewing && prevStep(step) === null ? "Back to home" : "Previous question"}
-          className="-ml-2 inline-flex size-11 shrink-0 items-center justify-center rounded-full text-ink-muted transition-colors hover:bg-surface hover:text-ink"
-        >
-          <ArrowLeft className="size-5" aria-hidden="true" />
-        </button>
-        <p className="min-w-0 flex-1 truncate text-sm font-medium text-ink-muted">{worry.title}</p>
-        <p className="num text-sm text-ink-faint">
-          {step + 1} of {steps}
-        </p>
-      </div>
-
-      <div
-        role="progressbar"
-        aria-label="Progress"
-        aria-valuemin={1}
-        aria-valuemax={steps}
-        aria-valuenow={step + 1}
-        className={`${counting && step === 0 ? "mb-4" : "mb-8"} mt-2 h-1 overflow-hidden rounded-full bg-line`}
-      >
-        <div
-          className="h-full rounded-full bg-lamp transition-[width] duration-300 ease-out"
-          style={{ width: `${((step + 1) / steps) * 100}%` }}
-        />
-      </div>
+      <StepProgress
+        title={worry.title}
+        step={step}
+        steps={steps}
+        // the hair counter is a task, not a question
+        noun={question && !reviewing ? "Question" : "Step"}
+        backLabel={!reviewing && prevStep(step) === null ? "Back to home" : "Previous question"}
+        onBack={back}
+        tight={counting && step === 0}
+      />
 
       {showStrip && (
         <div className="mb-6 animate-fade-up rounded-2xl border border-lamp/30 bg-lamp/10 px-4 py-3">
           <div className="flex items-start gap-2">
-            <p className="min-w-0 flex-1 pt-1 text-[13px] font-bold uppercase tracking-[0.09em] text-lamp">
+            <p className="min-w-0 flex-1 pt-1 text-small font-bold uppercase tracking-[0.06em] text-lamp">
               From what you wrote
             </p>
             <button
               type="button"
               onClick={() => setStripOpen(false)}
               aria-label="Dismiss this note"
-              className="-mr-2 -mt-2 inline-flex size-11 shrink-0 items-center justify-center rounded-full text-ink-muted transition-colors hover:text-ink"
+              className="-mr-2 -mt-2 inline-flex size-12 shrink-0 items-center justify-center rounded-full text-ink-muted transition-colors hover:text-ink"
             >
               <X className="size-4" aria-hidden="true" />
             </button>
@@ -154,7 +137,7 @@ export function Check({ id }: { id: WorryId }) {
           <button
             type="button"
             onClick={edit}
-            className="-mb-1 mt-1 inline-flex min-h-11 items-center text-[14px] font-semibold text-lamp underline-offset-4 hover:underline"
+            className="-mb-1 mt-1 inline-flex min-h-12 items-center text-small font-semibold text-lamp underline-offset-4 hover:underline"
           >
             Change my answers
           </button>
@@ -180,8 +163,8 @@ export function Check({ id }: { id: WorryId }) {
 
       {reviewing && (
         <div key="review" className="animate-fade-up">
-          <h1 className="font-display text-[30px] leading-[1.15] tracking-[-0.01em]">Here's what we picked up.</h1>
-          <p className="mt-2.5 text-[15px] leading-relaxed text-ink-muted">
+          <h1 className="font-display text-[1.875rem] leading-[1.15] tracking-[-0.01em]">Here's what we picked up.</h1>
+          <p className="mt-2.5 text-body text-ink-muted">
             Everything was answered from what you wrote. Change anything that's off.
           </p>
           <div className="mt-5">
@@ -194,7 +177,7 @@ export function Check({ id }: { id: WorryId }) {
             <button
               type="button"
               onClick={edit}
-              className="inline-flex min-h-11 w-full items-center justify-center text-[14px] font-semibold text-lamp underline-offset-4 hover:underline"
+              className="inline-flex min-h-12 w-full items-center justify-center text-small font-semibold text-lamp underline-offset-4 hover:underline"
             >
               Change my answers
             </button>

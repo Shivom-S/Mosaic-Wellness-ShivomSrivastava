@@ -65,7 +65,7 @@ function Stepper({ field, value, onChange }: { field: NumberField; value: number
             const digits = e.target.value.replace(/\D/g, "");
             if (digits !== "") onChange(clamp(parseInt(digits, 10)));
           }}
-          className="field num min-w-0 flex-1 text-center font-display text-[32px]"
+          className="field num min-w-0 flex-1 text-center font-display text-[2rem]"
         />
         <button type="button" onClick={() => bump(field.step)} aria-label={`One more ${field.unit}`} className={btn("secondary", "size-12 shrink-0 !px-0")}>
           <Plus className="size-5" aria-hidden="true" />
@@ -80,7 +80,7 @@ function Stepper({ field, value, onChange }: { field: NumberField; value: number
           ))}
         </div>
       )}
-      <p className="mt-1 text-center text-[13px] text-ink-faint">{field.unit}</p>
+      <p className="mt-1 text-center text-small text-ink-muted">{field.unit}</p>
     </div>
   );
 }
@@ -141,16 +141,16 @@ export function TrackerDaily({ worryId, tracker, today, prefill, onSave }: Track
 
   return (
     <form onSubmit={submit} className="space-y-7">
-      {!today && prefill && <p className="-mb-3 text-[13px] text-ink-muted">Pre-filled from tonight's count.</p>}
+      {!today && prefill && <p className="-mb-3 text-small text-ink-muted">Pre-filled from tonight's count.</p>}
       {tracker.fields.map((f) =>
         f.kind === "toggle" ? (
           <div key={f.id} className="flex min-h-12 items-center justify-between gap-4 rounded-2xl border border-line bg-surface px-4 py-2.5">
-            <span className="font-display text-[19px] leading-tight">{f.label}</span>
+            <span className="font-display text-[1.1875rem] leading-tight">{f.label}</span>
             <Toggle on={draft[f.id] === true} onChange={(v) => set(f.id, v)} label={f.label} />
           </div>
         ) : (
           <fieldset key={f.id} className="min-w-0">
-            <legend className="mb-3 font-display text-[22px] leading-tight">{f.label}</legend>
+            <legend className="mb-3 font-display text-[1.375rem] leading-tight">{f.label}</legend>
             {control(f)}
           </fieldset>
         ),
@@ -160,7 +160,7 @@ export function TrackerDaily({ worryId, tracker, today, prefill, onSave }: Track
         <button type="submit" disabled={!complete} className={btn("primary", "w-full")}>
           {today ? "Update today's log" : "Log today"}
         </button>
-        {!complete && <p className="mt-2.5 text-center text-[13px] text-ink-faint">Fill in each one to log today.</p>}
+        {!complete && <p className="mt-2.5 text-center text-small text-ink-muted">Fill in each one to log today.</p>}
       </div>
 
       <Drawer open={padOpen} onOpenChange={setPadOpen} shouldScaleBackground={false}>

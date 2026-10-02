@@ -8,7 +8,7 @@ import { keys, session, store, type AiPending } from "@/lib/storage";
 import { looksUrgent, openUrgent } from "@/lib/urgent";
 import { cn } from "@/lib/utils";
 
-const PROMPTS = ["baal bahut gir rahe hain…", "period 10 days late…", "raat ko neend nahi aati…", "my son only eats rice…"];
+const PLACEHOLDER = "e.g. my hair is falling a lot";
 
 // The Web Speech API isn't in lib.dom for every TS version, so describe the bit we use.
 interface SpeechResultLike {
@@ -36,8 +36,8 @@ function speechCtor(): RecognitionCtor | null {
 interface SayItBoxProps {
   value: string;
   onValue: (text: string) => void;
-  /** Lets another part of the page (a Popular chip) submit text as if it had been typed. */
-  request?: { text: string; n: number } | null;
+  /** Id of the heading that labels the input (the heading is the visible label). */
+  labelledBy: string;
 }
 
 interface Heard {
@@ -59,7 +59,7 @@ function CheckChips() {
         <li key={w.id}>
           <a
             href={href({ name: "check", id: w.id })}
-            className="inline-flex min-h-11 items-center rounded-full border border-line px-3.5 text-[13px] font-medium text-ink transition hover:border-lamp/60 hover:bg-surface-2"
+            className="inline-flex min-h-12 items-center rounded-full border border-line px-4 text-small font-medium text-ink transition hover:border-lamp/60 hover:bg-surface-2"
           >
             {w.title}
           </a>
@@ -70,8 +70,7 @@ function CheckChips() {
 }
 
 /** The main input: type it, or say it. Keyword matching on the phone; an optional AI only routes and pre-fills. */
-export function SayItBox({ value, onValue, request }: SayItBoxProps) {
-  const [prompt, setPrompt] = useState(0);
+export function SayItBox({ value, onValue, labelledBy }: SayItBoxProps) {
   const [match, setMatch] = useState<WorryId | "none" | null>(null);
   const [listening, setListening] = useState(false);
   const [voiceNote, setVoiceNote] = useState(false);
@@ -88,11 +87,6 @@ export function SayItBox({ value, onValue, request }: SayItBoxProps) {
   const rec = useRef<RecognitionLike | null>(null);
   const supported = useRef(speechCtor() !== null).current;
 
-  useEffect(() => {
-    const t = window.setInterval(() => setPrompt((p) => (p + 1) % PROMPTS.length), 2800);
-    return () => window.clearInterval(t);
-  }, []);
-
   useEffect(() => () => rec.current?.stop(), []);
 
   // Find out early whether an AI is connected, so the note shows and the first submit isn't slowed.
@@ -105,7 +99,7 @@ export function SayItBox({ value, onValue, request }: SayItBoxProps) {
     };
   }, []);
 
-  // A chip elsewhere on the page can fill the box; a cleared box clears the answer too.
+  // A cleared box clears the answer too.
   useEffect(() => {
     if (!value.trim()) {
       token.current += 1;
@@ -181,11 +175,6 @@ export function SayItBox({ value, onValue, request }: SayItBoxProps) {
     setHeard({ echo: got.echo, filled: Object.keys(answers).length });
     setMatch(got.worry);
   };
-
-  useEffect(() => {
-    if (request?.text.trim()) void run(request.text);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [request?.n]);
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -276,15 +265,13 @@ export function SayItBox({ value, onValue, request }: SayItBoxProps) {
   };
 
   return (
-    <section aria-labelledby="say-it-title">
+    <section aria-labelledby={labelledBy}>
       <form onSubmit={submit} className="relative">
-        <label htmlFor="say-it" id="say-it-title" className="mb-2.5 block font-display text-[22px] leading-snug text-ink lg:text-[24px]">
-          What's on your mind?
-        </label>
         <div className="relative">
           <input
             id="say-it"
             type="text"
+            aria-labelledby={labelledBy}
             value={value}
             onChange={(e) => {
               onValue(e.target.value);
@@ -295,17 +282,17 @@ export function SayItBox({ value, onValue, request }: SayItBoxProps) {
               setBuilding(null);
               setAiNote(null);
             }}
-            placeholder={listening ? "Listening… say it however it comes out" : PROMPTS[prompt]}
+            placeholder={listening ? "Listening… say it however it comes out" : PLACEHOLDER}
             autoComplete="off"
             autoCapitalize="none"
             enterKeyHint="send"
             className={cn(
-              "field h-[60px] rounded-full pl-6 text-[17px] shadow-sm lg:h-16 lg:text-[18px]",
-              supported ? "pr-[116px]" : "pr-[68px]",
+              "field h-[60px] rounded-full pl-5 text-body shadow-sm lg:h-16 lg:pl-6",
+              supported ? "pr-[112px]" : "pr-[64px]",
               listening && "border-lamp",
             )}
           />
-          <div className="absolute right-2 top-2 flex items-center gap-1 lg:top-2.5">
+          <div className="absolute right-1.5 top-1.5 flex items-center gap-1 lg:top-2">
             {supported && (
               <button
                 type="button"
@@ -313,7 +300,7 @@ export function SayItBox({ value, onValue, request }: SayItBoxProps) {
                 aria-pressed={listening}
                 aria-label={listening ? "Stop listening" : "Say it out loud"}
                 className={cn(
-                  "relative inline-flex size-11 touch-manipulation items-center justify-center rounded-full border transition active:scale-95",
+                  "relative inline-flex size-12 touch-manipulation items-center justify-center rounded-full border transition duration-75 active:scale-95",
                   listening
                     ? "border-lamp bg-lamp/15 text-lamp"
                     : "border-line text-ink-muted hover:border-lamp/60 hover:text-lamp",
@@ -327,7 +314,7 @@ export function SayItBox({ value, onValue, request }: SayItBoxProps) {
               type="submit"
               aria-label="Find the right check"
               disabled={!value.trim()}
-              className="inline-flex size-11 touch-manipulation items-center justify-center rounded-full bg-lamp text-on-lamp transition hover:brightness-110 active:scale-95 disabled:bg-surface-2 disabled:text-ink-faint"
+              className="inline-flex size-12 touch-manipulation items-center justify-center rounded-full bg-lamp text-on-lamp transition duration-75 hover:brightness-110 active:scale-95 disabled:bg-surface-2 disabled:text-ink-muted"
             >
               <ArrowRight className="size-5" aria-hidden="true" />
             </button>
@@ -335,49 +322,49 @@ export function SayItBox({ value, onValue, request }: SayItBoxProps) {
         </div>
       </form>
 
-      <p className="mt-2.5 text-[13px] leading-snug text-ink-muted">
+      <p className="mt-2 text-small text-ink-muted">
         {listening ? (
           <span role="status" className="font-medium text-lamp">
             Listening… say it however it comes out
           </span>
         ) : (
-          "English, Hinglish, however it comes out at 1 AM."
+          "Write in English or Hindi words."
         )}
       </p>
       {(aiOn || checksOn) && (
-        <p className="mt-1.5 text-[13px] leading-snug text-ink-muted">
+        <p className="mt-1.5 text-small text-ink-muted">
           {checksOn
             ? "Typed text is sent to an AI model to understand it and, if none of our checks fit, to write one. 1AM doesn't store it."
             : "Typed text is sent to an AI model just to understand it. 1AM doesn't store it."}
         </p>
       )}
       {voiceNote && (
-        <p className="mt-1.5 text-[13px] leading-snug text-ink-muted">
+        <p className="mt-1.5 text-small text-ink-muted">
           Voice uses your browser's speech service (in Chrome, that's Google). Typed text stays on your phone.
         </p>
       )}
 
       <div aria-live="polite">
-        {voiceMsg && <p className="mt-3 text-[14px] leading-snug text-watch">{voiceMsg}</p>}
-        {reading && <p className="mt-3 text-[15px] leading-snug text-ink-muted">Reading what you wrote…</p>}
+        {voiceMsg && <p className="mt-3 text-small text-watch">{voiceMsg}</p>}
+        {reading && <p className="mt-3 text-body text-ink-muted">Reading what you wrote…</p>}
         {building !== null && (
-          <p className="mt-3 flex items-center gap-2.5 text-[15px] leading-snug text-ink-muted">
+          <p className="mt-3 flex items-center gap-2.5 text-body text-ink-muted">
             <span aria-hidden="true" className="size-2 shrink-0 animate-pulse rounded-full bg-lamp" />
             Writing a few questions about {building || "this"}…
           </p>
         )}
         {aiNote?.kind === "notHealth" && (
-          <p className="mt-3 animate-fade-up text-[15px] leading-relaxed text-ink-muted">
+          <p className="mt-3 animate-fade-up text-body text-ink-muted">
             That doesn't sound like a health worry. Try describing what you're feeling.
           </p>
         )}
         {aiNote?.kind === "fail" && (
-          <div className="mt-3 animate-fade-up rounded-2xl border border-line bg-surface px-4 py-4 text-[15px] leading-relaxed text-ink-muted">
+          <div className="mt-3 animate-fade-up rounded-2xl border border-line bg-surface px-4 py-4 text-body text-ink-muted">
             <p>Unable to build a check right now. Try again, or pick one of the checks below.</p>
             <button
               type="button"
               onClick={() => void buildAi(lastText.current)}
-              className="mt-3 inline-flex min-h-11 items-center rounded-full bg-lamp px-5 text-[14px] font-semibold text-on-lamp transition hover:brightness-110 active:scale-95"
+              className="mt-3 inline-flex min-h-12 items-center rounded-full bg-lamp px-5 text-small font-semibold text-on-lamp transition hover:brightness-110 active:scale-95"
             >
               Try again
             </button>
@@ -385,13 +372,13 @@ export function SayItBox({ value, onValue, request }: SayItBoxProps) {
           </div>
         )}
         {aiNote?.kind === "urgent" && (
-          <div className="mt-3 animate-fade-up rounded-2xl border border-doctor/40 bg-doctor/10 px-4 py-4 text-[15px] leading-relaxed text-ink">
+          <div className="mt-3 animate-fade-up rounded-2xl border border-doctor/40 bg-doctor/10 px-4 py-4 text-body text-ink">
             <p>If this could be an emergency, don't wait on an app. Call 112 or get to a doctor now.</p>
             <div className="mt-2 flex flex-wrap gap-x-5">
               <button
                 type="button"
                 onClick={openUrgent}
-                className="inline-flex min-h-11 items-center gap-2 text-[14px] font-semibold text-doctor underline-offset-4 hover:underline"
+                className="inline-flex min-h-12 items-center gap-2 text-small font-semibold text-doctor underline-offset-4 hover:underline"
               >
                 <LifeBuoy className="size-4" aria-hidden="true" />
                 See the urgent-help signs
@@ -399,7 +386,7 @@ export function SayItBox({ value, onValue, request }: SayItBoxProps) {
               {aiNote.canContinue && (
                 <a
                   href={href({ name: "ai-check" })}
-                  className="inline-flex min-h-11 items-center text-[14px] font-semibold text-lamp underline-offset-4 hover:underline"
+                  className="inline-flex min-h-12 items-center text-small font-semibold text-lamp underline-offset-4 hover:underline"
                 >
                   Continue with a few questions
                 </a>
@@ -411,13 +398,13 @@ export function SayItBox({ value, onValue, request }: SayItBoxProps) {
           <div className="mt-3 animate-fade-up">
             <a
               href={href({ name: "check", id: match })}
-              className="flex items-center justify-between gap-3 rounded-2xl border border-lamp/40 bg-lamp/10 px-4 py-3.5 text-[16px] leading-snug transition-colors hover:bg-lamp/20"
+              className="flex min-h-14 items-center justify-between gap-3 rounded-2xl border border-lamp/40 bg-lamp/10 px-4 py-3.5 text-body transition-colors hover:bg-lamp/20"
             >
               <span className="min-w-0">
                 Sounds like <b className="font-semibold">{WORRY[match].title}</b>.
                 {heard?.echo && <span className="mt-1 block italic text-ink-muted">We heard: “{heard.echo}”</span>}
                 {heard && heard.filled > 0 && (
-                  <span className="mt-1 block text-[14px] text-ink-muted">
+                  <span className="mt-1 block text-small text-ink-muted">
                     We've filled in {heard.filled} {heard.filled === 1 ? "answer" : "answers"} from what you wrote. You can change them.
                   </span>
                 )}
@@ -428,7 +415,7 @@ export function SayItBox({ value, onValue, request }: SayItBoxProps) {
               <button
                 type="button"
                 onClick={() => void buildAi(lastText.current)}
-                className="mt-1 inline-flex min-h-11 items-center text-left text-[14px] leading-snug text-ink-muted underline decoration-line underline-offset-4 transition-colors hover:text-ink"
+                className="mt-1 inline-flex min-h-12 items-center text-left text-small text-ink-muted underline decoration-line underline-offset-4 transition-colors hover:text-ink"
               >
                 Not quite it? Build a check for exactly what I wrote
               </button>
@@ -436,31 +423,31 @@ export function SayItBox({ value, onValue, request }: SayItBoxProps) {
           </div>
         )}
         {match === "none" && heard?.triage && (
-          <div className="mt-3 animate-fade-up rounded-2xl border border-line bg-surface px-4 py-4 text-[15px] leading-relaxed text-ink-muted">
-            <p className="font-display text-[20px] leading-snug text-ink">
+          <div className="mt-3 animate-fade-up rounded-2xl border border-line bg-surface px-4 py-4 text-body text-ink-muted">
+            <p className="font-display text-[1.25rem] leading-snug text-ink">
               We don't cover {heard.triage.topic || "that"} yet.
             </p>
             <p className="mt-1.5">
               We'd rather say so than guess. The right person to ask:{" "}
               <b className="font-semibold text-ink">{heard.triage.specialist}</b>.
             </p>
-            <p className="mt-1.5 text-[13px] leading-snug text-ink-faint">
+            <p className="mt-1.5 text-small text-ink-muted">
               1AM only gives answers it can back with sources. This suggestion is from an AI model, not a diagnosis.
             </p>
             <button
               type="button"
               onClick={openUrgent}
-              className="mt-2 inline-flex min-h-11 items-center gap-2 text-[14px] font-semibold text-lamp underline-offset-4 hover:underline"
+              className="mt-2 inline-flex min-h-12 items-center gap-2 text-small font-semibold text-lamp underline-offset-4 hover:underline"
             >
               <LifeBuoy className="size-4" aria-hidden="true" />
               See the urgent-help signs
             </button>
-            <p className="mt-2 text-[13px] font-semibold text-ink-muted">Check one of these instead</p>
+            <p className="mt-2 text-small font-semibold text-ink-muted">Check one of these instead</p>
             <CheckChips />
           </div>
         )}
         {match === "none" && !heard?.triage && (
-          <div className="mt-3 animate-fade-up rounded-2xl border border-line bg-surface px-4 py-3.5 text-[15px] leading-relaxed text-ink-muted">
+          <div className="mt-3 animate-fade-up rounded-2xl border border-line bg-surface px-4 py-3.5 text-body text-ink-muted">
             <p>
               We only cover {WORRIES.length} worries right now, on purpose. If it's sudden, severe or scary, don't wait on
               an app. See a doctor.
@@ -468,7 +455,7 @@ export function SayItBox({ value, onValue, request }: SayItBoxProps) {
             <button
               type="button"
               onClick={openUrgent}
-              className="mt-2 inline-flex min-h-11 items-center gap-2 rounded-full border border-doctor/60 px-4 text-[14px] font-semibold text-doctor transition hover:bg-doctor/10"
+              className="mt-2 inline-flex min-h-12 items-center gap-2 rounded-full border border-doctor/60 px-4 text-small font-semibold text-doctor transition hover:bg-doctor/10"
             >
               <LifeBuoy className="size-4" aria-hidden="true" />
               See the urgent-help signs

@@ -14,8 +14,8 @@ export function TonightSteps({ tryTonight, verdict }: { tryTonight: string; verd
     <ol className="space-y-3">
       {steps.map((s, i) => (
         <li key={i} className="flex gap-4 rounded-[22px] border border-line bg-surface px-4 py-4">
-          <span className="num font-display text-[28px] italic leading-none text-lamp">{String(i + 1).padStart(2, "0")}</span>
-          <p className="min-w-0 flex-1 pt-0.5 text-[16px] leading-relaxed text-ink">{s}</p>
+          <span className="num font-display text-[1.75rem] italic leading-none text-lamp">{String(i + 1).padStart(2, "0")}</span>
+          <p className="min-w-0 flex-1 pt-0.5 text-body text-ink">{s}</p>
         </li>
       ))}
     </ol>
@@ -25,10 +25,10 @@ export function TonightSteps({ tryTonight, verdict }: { tryTonight: string; verd
 /** "Tonight, don't": a quiet list with a small × marker. */
 export function Donts({ items }: { items: string[] }) {
   return (
-    <ul className="space-y-2.5">
+    <ul className="space-y-3">
       {items.map((d) => (
-        <li key={d} className="flex gap-3 text-[15px] leading-relaxed text-ink-muted">
-          <X aria-hidden="true" className="mt-[0.3em] size-4 shrink-0 text-ink-faint" strokeWidth={2.5} />
+        <li key={d} className="flex gap-3 text-body text-ink">
+          <X aria-hidden="true" className="mt-[0.45em] size-4 shrink-0 text-ink-muted" strokeWidth={2.5} />
           <span>{d}</span>
         </li>
       ))}

@@ -17,7 +17,7 @@ function Body() {
       </div>
       <DrawerOrDialogDescription />
 
-      <ul className="space-y-2 text-[15px] leading-snug text-ink">
+      <ul className="space-y-2.5 text-body text-ink">
         {URGENT.signs.map((s) => (
           <li key={s} className="flex gap-3">
             <span aria-hidden="true" className="mt-[0.55em] size-1.5 shrink-0 rounded-full bg-doctor" />
@@ -33,8 +33,8 @@ function Body() {
               href={`tel:${n.number}`}
               className="flex min-h-[60px] items-center justify-between gap-4 rounded-2xl border border-doctor/40 bg-doctor/10 px-4 py-3 text-ink transition-colors hover:bg-doctor/20"
             >
-              <span className="text-[14px] leading-snug text-ink-muted">{n.label}</span>
-              <span className="num flex shrink-0 items-center gap-2 font-display text-[28px] leading-none text-doctor">
+              <span className="text-small text-ink-muted">{n.label}</span>
+              <span className="num flex shrink-0 items-center gap-2 font-display text-[1.75rem] leading-none text-doctor">
                 <Phone className="size-5" aria-hidden="true" />
                 {n.number}
               </span>
@@ -43,7 +43,7 @@ function Body() {
         ))}
       </ul>
 
-      <p className="text-[13px] leading-snug text-ink-muted">{URGENT.footer}</p>
+      <p className="text-small text-ink-muted">{URGENT.footer}</p>
     </>
   );
 }
@@ -53,7 +53,7 @@ const Ctx = createContext<"drawer" | "dialog">("drawer");
 
 function DrawerOrDialogTitle() {
   const kind = useContext(Ctx);
-  const cls = "font-display text-[24px] font-normal leading-tight tracking-normal text-ink";
+  const cls = "font-display text-[1.5rem] font-normal leading-tight tracking-normal text-ink";
   return kind === "dialog" ? (
     <DialogTitle className={cls}>{URGENT.title}</DialogTitle>
   ) : (
@@ -63,7 +63,7 @@ function DrawerOrDialogTitle() {
 
 function DrawerOrDialogDescription() {
   const kind = useContext(Ctx);
-  const cls = "text-[15px] leading-relaxed text-ink-muted";
+  const cls = "text-body text-ink-muted";
   return kind === "dialog" ? (
     <DialogDescription className={cls}>{URGENT.intro}</DialogDescription>
   ) : (

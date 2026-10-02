@@ -21,7 +21,7 @@ export function VerdictCard({ result, count, ai = false }: VerdictCardProps) {
   return (
     <section
       aria-live="polite"
-      className={cn("relative overflow-hidden rounded-[28px] border p-6 pb-7", tone.card)}
+      className={cn("relative overflow-hidden rounded-[28px] border p-5 pb-6 lg:p-6 lg:pb-7", tone.card)}
     >
       <Deco
         aria-hidden="true"
@@ -32,7 +32,7 @@ export function VerdictCard({ result, count, ai = false }: VerdictCardProps) {
       <div className="relative flex flex-wrap items-center gap-2">
         <span
           className={cn(
-            "inline-flex animate-pop-in items-center gap-2 rounded-full px-3.5 py-2 text-xs font-bold uppercase tracking-[0.09em]",
+            "inline-flex animate-pop-in items-center gap-2 rounded-full px-3.5 py-2 text-small font-bold uppercase tracking-[0.05em]",
             tone.pill,
           )}
         >
@@ -40,7 +40,7 @@ export function VerdictCard({ result, count, ai = false }: VerdictCardProps) {
           {toneLabel(result.verdict)}
         </span>
         {ai && (
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-ink-faint/60 px-3 py-[7px] text-xs font-bold uppercase tracking-[0.09em] text-ink-muted">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-ink-faint px-3 py-[7px] text-small font-bold uppercase tracking-[0.05em] text-ink-muted">
             <PenLine className="size-3.5" strokeWidth={2.25} aria-hidden="true" />
             AI-written
           </span>
@@ -48,26 +48,24 @@ export function VerdictCard({ result, count, ai = false }: VerdictCardProps) {
       </div>
 
       {n !== null && (
-        <p className="relative mt-5 flex items-baseline gap-2.5">
-          <span className="num font-display text-[76px] leading-none tracking-tight text-ink">{n}</span>
-          <span className="font-display text-2xl italic text-ink-muted">{n === 1 ? "hair" : "hairs"}</span>
+        <p className="relative mt-4 flex items-baseline gap-2.5">
+          <span className="num font-display text-[4.5rem] leading-none tracking-tight text-ink">{n}</span>
+          <span className="font-display text-[1.5rem] italic text-ink-muted">{n === 1 ? "hair" : "hairs"}</span>
         </p>
       )}
 
       <h1
         className={cn(
-          "relative font-display text-[32px] leading-[1.12] tracking-[-0.01em] text-ink",
-          n !== null ? "mt-3" : "mt-5",
+          "relative font-display text-[2rem] leading-[1.12] tracking-[-0.01em] text-ink",
+          n !== null ? "mt-3" : "mt-4",
         )}
       >
         {result.headline}
       </h1>
 
-      <p className="relative mt-3 text-[13px] leading-snug text-ink-muted">
-        Based on what you told us. This isn't a diagnosis.
-      </p>
+      {result.urgency && <p className="relative mt-3 text-body font-bold text-doctor">{result.urgency}</p>}
 
-      {result.urgency && <p className="relative mt-3 text-[17px] font-bold text-doctor">{result.urgency}</p>}
+      <p className="relative mt-3 text-small text-ink-muted">Based on what you told us. This isn't a diagnosis.</p>
     </section>
   );
 }

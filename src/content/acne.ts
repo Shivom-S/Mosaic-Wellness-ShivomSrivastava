@@ -31,7 +31,7 @@ function evaluate({ answers }: CheckInput): Result {
   ];
 
   const routine =
-    "Tonight: wash your face once, gently, with your fingertips (no scrub), remove any makeup, and leave the spots alone. Popping pushes bacteria deeper.";
+    "Wash your face once, gently, with your fingertips (no scrub), remove any makeup, and leave the spots alone. Popping pushes bacteria deeper.";
 
   if (deep || scars || failedLong || mood) {
     return {

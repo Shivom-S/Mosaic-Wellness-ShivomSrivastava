@@ -54,7 +54,7 @@ function Screen({ route }: { route: Route }) {
 
 export default function App() {
   const [route, setRoute] = useState<Route>(() => parseHash(window.location.hash));
-  const { theme, setTheme, comfort, setComfort } = useTheme();
+  const { theme, setTheme, textSize, setTextSize } = useTheme();
   const first = useRef(true);
 
   // Hash is the source of truth: Back, shared links and in-app <a href="#/…"> all land here.
@@ -79,8 +79,8 @@ export default function App() {
       <Shell
         theme={theme}
         onTheme={setTheme}
-        comfort={comfort}
-        onComfort={setComfort}
+        textSize={textSize}
+        onTextSize={setTextSize}
         onHome={route.name === "home"}
         stars={route.name === "home" ? "full" : "sides"}
         footer={route.name !== "check" && route.name !== "ai-check"}

@@ -53,10 +53,11 @@ export function ChipGroup({ options, value, onChange, multi = false, layout = "s
             disabled={disabled}
             onClick={() => onChange(nextSelection(options, value, o.id, multi), o.id)}
             className={cn(
-              "group relative flex touch-manipulation items-center gap-3 border text-left transition duration-150 active:scale-[0.985]",
-              layout === "stack" && "min-h-[58px] w-full rounded-2xl px-4 py-3 text-[17px] leading-snug",
-              layout === "wrap" && "min-h-11 rounded-[22px] px-4 py-2.5 text-[15px] leading-snug",
-              layout === "row" && "min-h-[52px] justify-center rounded-2xl px-3 py-2.5 text-center text-[15px] leading-tight",
+              // 75ms: the tap highlight lands well inside the 100ms mark
+              "group relative flex touch-manipulation items-center gap-3 border text-left transition duration-75 active:scale-[0.985] active:border-lamp active:bg-lamp/15",
+              layout === "stack" && "min-h-[58px] w-full rounded-2xl px-4 py-3 text-body",
+              layout === "wrap" && "min-h-12 rounded-[22px] px-4 py-2.5 text-body",
+              layout === "row" && "min-h-[52px] justify-center rounded-2xl px-3 py-2.5 text-center text-body",
               on
                 ? "border-lamp bg-lamp/15 text-ink"
                 : "border-line bg-surface text-ink hover:border-ink-faint hover:bg-surface-2",
@@ -68,14 +69,14 @@ export function ChipGroup({ options, value, onChange, multi = false, layout = "s
                 "flex size-5 shrink-0 items-center justify-center rounded-full border transition-colors",
                 layout === "row" && "hidden",
                 layout === "wrap" && "size-[18px]",
-                on ? "border-lamp bg-lamp text-on-lamp" : "border-ink-faint/60 text-transparent",
+                on ? "border-lamp bg-lamp text-on-lamp" : "border-ink-faint text-transparent",
               )}
             >
               <Check className="size-3" strokeWidth={3.5} />
             </span>
             <span className="min-w-0 flex-1">
               <span className="block">{o.label}</span>
-              {o.hint && <span className="mt-0.5 block text-[13px] leading-snug text-ink-muted">{o.hint}</span>}
+              {o.hint && <span className="mt-0.5 block text-small text-ink-muted">{o.hint}</span>}
             </span>
           </button>
         );

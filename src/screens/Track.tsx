@@ -72,14 +72,14 @@ export function Track({ id }: { id: WorryId }) {
           <a
             href={href({ name: "home" })}
             aria-label="Back to home"
-            className="-ml-2 inline-flex size-11 shrink-0 items-center justify-center rounded-full text-ink-muted transition-colors hover:bg-surface hover:text-ink"
+            className="-ml-2 inline-flex size-12 shrink-0 items-center justify-center rounded-full text-ink-muted transition-colors hover:bg-surface hover:text-ink"
           >
             <ArrowLeft className="size-5" aria-hidden="true" />
           </a>
-          <p className="min-w-0 flex-1 truncate text-sm font-medium text-ink-muted">{worry.title}</p>
+          <p className="min-w-0 flex-1 truncate text-small font-medium text-ink-muted">{worry.title}</p>
         </div>
 
-        <h1 className="mt-3 font-display text-[36px] leading-[1.05] tracking-[-0.015em]">
+        <h1 className="mt-3 font-display text-[2.25rem] leading-[1.05] tracking-[-0.015em]">
           <span className="italic text-lamp">{heading}</span>
         </h1>
 
@@ -90,7 +90,7 @@ export function Track({ id }: { id: WorryId }) {
           todayIndex={todayIndex}
           unit={tracker.kind === "daily" ? tracker.unitLabel : "cycle"}
         />
-        <p className="mt-4 text-[15px] leading-relaxed text-ink-muted">{tracker.prompt}</p>
+        <p className="mt-4 text-body text-ink-muted">{tracker.prompt}</p>
       </div>
 
       <Section style={stagger(1)}>
@@ -117,7 +117,7 @@ export function Track({ id }: { id: WorryId }) {
 
       <Section style={stagger(2)}>
         <div className="rounded-[22px] border border-dashed border-line px-5 py-4 text-center">
-          <p className="text-[14px] leading-relaxed text-ink-muted">
+          <p className="text-small text-ink-muted">
             {tracker.kind === "daily"
               ? "Come back tomorrow. We'll keep your place. (It's saved on this phone only.)"
               : "Add dates whenever you remember them. They're saved on this phone only."}
@@ -139,11 +139,11 @@ export function Track({ id }: { id: WorryId }) {
           <TrendCard trend={trend} worryId={id} />
         ) : (
           <div className="animate-fade-up rounded-[28px] border border-dashed border-line px-7 py-10 text-center">
-            <p className="font-display text-[24px] italic leading-snug text-ink">Your trend lands here.</p>
-            <p className="mt-2 text-[15px] leading-relaxed text-ink-muted">
+            <p className="font-display text-[1.5rem] italic leading-snug text-ink">Your trend lands here.</p>
+            <p className="mt-2 text-body text-ink-muted">
               Log tonight's entry and the chart starts to draw. {tracker.kind === "daily" ? `${tracker.days} ${tracker.unitLabel}s turns a guess into a pattern.` : ""}
             </p>
-            <a href={href({ name: "example", id })} className="mt-3 inline-flex min-h-11 items-center text-[15px] font-medium text-lamp underline underline-offset-4">
+            <a href={href({ name: "example", id })} className="mt-3 inline-flex min-h-12 items-center text-body font-medium text-lamp underline underline-offset-4">
               See an example trend
             </a>
           </div>

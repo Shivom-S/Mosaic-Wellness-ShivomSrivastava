@@ -14,7 +14,7 @@ const COL = "lg:mx-auto lg:max-w-[680px]";
 function Block({ title, i, children }: { title: string; i: number; children: ReactNode }) {
   return (
     <Section title={title} style={stagger(i)} className={COL}>
-      <div className="space-y-3.5 text-[16px] leading-relaxed text-ink">{children}</div>
+      <div className="space-y-3.5 text-body text-ink">{children}</div>
     </Section>
   );
 }
@@ -28,16 +28,16 @@ export function About() {
         <a
           href={href({ name: "home" })}
           aria-label="Back to home"
-          className="-ml-2 inline-flex size-11 items-center justify-center rounded-full text-ink-muted transition-colors hover:bg-surface hover:text-ink"
+          className="-ml-2 inline-flex size-12 items-center justify-center rounded-full text-ink-muted transition-colors hover:bg-surface hover:text-ink"
         >
           <ArrowLeft className="size-5" aria-hidden="true" />
         </a>
-        <h1 className="mt-2 font-display text-[38px] leading-[1.06] tracking-[-0.015em]">
+        <h1 className="mt-2 font-display text-[2.375rem] leading-[1.06] tracking-[-0.015em]">
           Why <em className="italic text-lamp">1AM</em> exists
         </h1>
       </div>
 
-      <section className={`animate-fade-up space-y-3.5 text-[17px] leading-relaxed text-ink ${COL}`} style={stagger(1)}>
+      <section className={`animate-fade-up space-y-3.5 text-body text-ink ${COL}`} style={stagger(1)}>
         <p>
           People don't wake up wanting a wellness app. They show up at 1 AM with a private worry: hair in the drain, a
           late period, a toddler who won't eat. They type it into a search bar they'd never say out loud to a person.
@@ -59,7 +59,7 @@ export function About() {
       </Block>
 
       <Section title="The decisions" style={stagger(3)} className={COL}>
-        <ul className="space-y-3 text-[16px] leading-relaxed text-ink">
+        <ul className="space-y-3 text-body text-ink">
           {[
             [
               "Honest over helpful-sounding.",
@@ -127,14 +127,14 @@ export function About() {
       </Block>
 
       <Section title="Sources" style={stagger(7)} className="lg:mx-auto lg:max-w-[920px]">
-        <Sources grouped collapsible={false} />
+        <Sources grouped />
       </Section>
 
       <Section style={stagger(8)} className={COL}>
         <div className="rounded-[28px] border border-line bg-surface p-5">
-          <p className="text-[13px] font-bold uppercase tracking-[0.09em] text-lamp">Built by</p>
-          <p className="mt-2 font-display text-[24px] leading-tight">Shivom Srivastava</p>
-          <p className="mt-1 text-[15px] leading-relaxed text-ink-muted">
+          <p className="text-small font-bold uppercase tracking-[0.06em] text-lamp">Built by</p>
+          <p className="mt-2 font-display text-[1.5rem] leading-tight">Shivom Srivastava</p>
+          <p className="mt-1 text-body text-ink-muted">
             Economics &amp; Finance, Ashoka University. For the Mosaic Wellness CEO's Office Builder Round.
           </p>
           <a

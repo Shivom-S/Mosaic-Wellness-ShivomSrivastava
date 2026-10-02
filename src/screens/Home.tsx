@@ -1,118 +1,59 @@
-import { useEffect, useRef, useState } from "react";
-import { ChevronDown } from "lucide-react";
-import { WORRIES, type WorryId } from "@/content";
-import { ExampleStrip } from "@/components/ExampleStrip";
-import { History, HowItWorks, Popular, StopTheSpiral } from "@/components/HomeSections";
+import { useState } from "react";
+import { ArrowRight } from "lucide-react";
+import { Crescent } from "@/components/Logo";
+import { History, HowItWorks, QuestionCells, TrustRow } from "@/components/HomeSections";
 import { Pulse } from "@/components/Pulse";
 import { SayItBox } from "@/components/SayItBox";
-import { WorryCard } from "@/components/WorryCard";
-import { aiStatus } from "@/lib/api";
-import { greeting, useNow } from "@/lib/clock";
 import { href } from "@/lib/route";
-import { loadEntries, useStoreVersion } from "@/lib/storage";
+import { useStoreVersion } from "@/lib/storage";
 import { stagger } from "@/lib/ui";
 
-const PHONE_CARDS = 4;
+const focusSearch = () => document.getElementById("say-it")?.focus();
 
 export function Home() {
-  const now = useNow();
-  useStoreVersion(); // re-read tracker progress after a wipe
-  const g = greeting(now);
+  useStoreVersion(); // re-read saved checks after a wipe
   const [ask, setAsk] = useState("");
-  const [showAll, setShowAll] = useState(false);
-  const timer = useRef<number | undefined>(undefined);
-  const [request, setRequest] = useState<{ text: string; n: number } | null>(null);
-
-  useEffect(() => () => window.clearTimeout(timer.current), []);
-
-  // A popular question fills the box (so it feels heard) and then goes straight to the check.
-  // With an AI connected, the chip is submitted like typed text so the check opens pre-filled.
-  const pick = (q: string, worry: WorryId) => {
-    setAsk(q);
-    window.clearTimeout(timer.current);
-    void aiStatus().then((ai) => {
-      if (ai) return setRequest((r) => ({ text: q, n: (r?.n ?? 0) + 1 }));
-      timer.current = window.setTimeout(() => {
-        window.location.hash = href({ name: "check", id: worry });
-      }, 320);
-    });
-  };
 
   return (
-    <div className="space-y-10 lg:space-y-16">
-      <div className="space-y-9 lg:grid lg:grid-cols-12 lg:items-start lg:gap-x-14 lg:space-y-0">
-        <section className="animate-fade-up space-y-6 pt-1 lg:sticky lg:top-24 lg:col-span-5 lg:pt-6">
-          <div>
-            <p className="text-[14px] leading-snug text-ink-muted">
-              It's actually{" "}
-              <time
-                dateTime={`${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`}
-                className="num font-semibold text-ink"
-              >
-                {g.time} {g.meridiem}
-              </time>
-              . <span className="italic">{g.line}</span>
-            </p>
-
-            <h1 className="mt-4 font-display text-[40px] leading-[1.05] tracking-[-0.02em] text-ink lg:text-[56px]">
-              It's <em className="italic text-lamp">1 AM</em>. What's worrying you?
-            </h1>
-            <p className="mt-4 max-w-[34ch] text-[16px] leading-relaxed text-ink-muted lg:text-[17px]">
-              Honest, plain-language answers to the health questions you don't know who else to ask.
-            </p>
-          </div>
-
-          <SayItBox value={ask} onValue={setAsk} request={request} />
-
-          <p className="text-[13px] leading-relaxed text-ink-muted">
-            Cited sources · Nothing to buy · No account · Not a diagnosis
+    <div className="mx-auto max-w-[920px] space-y-7 lg:space-y-9">
+      <section className="animate-fade-up space-y-5">
+        <div>
+          <p className="flex items-center gap-2 text-small font-semibold uppercase tracking-[0.06em] text-lamp">
+            <Crescent className="text-[1rem]" />
+            1AM · honest health answers
           </p>
-        </section>
-
-        <div className="space-y-9 lg:col-span-7 lg:space-y-12 lg:pt-6">
-          <section aria-label="Pick a worry" className="space-y-3 lg:grid lg:grid-cols-2 lg:gap-4 lg:space-y-0">
-            {WORRIES.map((w, i) => (
-              <WorryCard
-                key={w.id}
-                worry={w}
-                entries={loadEntries(w.id)}
-                style={stagger(i + 2, 80)}
-                // Phones show the first few; laptops always show all of them.
-                className={i >= PHONE_CARDS && !showAll ? "hidden lg:flex" : undefined}
-                wide={WORRIES.length % 2 === 1 && i === WORRIES.length - 1}
-              />
-            ))}
-            {WORRIES.length > PHONE_CARDS && (
-              <button
-                type="button"
-                onClick={() => setShowAll((s) => !s)}
-                aria-expanded={showAll}
-                className="flex min-h-11 w-full touch-manipulation items-center justify-center gap-2 rounded-full border border-line px-5 text-[15px] font-semibold text-ink-muted transition hover:border-lamp/60 hover:text-lamp active:scale-[0.99] lg:hidden"
-              >
-                {showAll ? "Show fewer worries" : `Show ${WORRIES.length - PHONE_CARDS} more worries`}
-                <ChevronDown className={`size-4 transition-transform ${showAll ? "rotate-180" : ""}`} aria-hidden="true" />
-              </button>
-            )}
-          </section>
-
-          <div className="animate-fade-up" style={stagger(6, 80)}>
-            <Popular onPick={pick} />
-          </div>
-
-          <div className="animate-fade-up" style={stagger(7, 80)}>
-            <ExampleStrip />
-          </div>
-
-          <div className="animate-fade-up" style={stagger(8, 80)}>
-            <History />
-            <Pulse />
-          </div>
+          <h1
+            id="home-title"
+            className="mt-2 text-balance font-display text-[2.375rem] leading-[1.1] tracking-[-0.02em] text-ink lg:text-[3.25rem]"
+          >
+            What's worrying you?
+          </h1>
+          <p className="mt-2 max-w-[44ch] text-body text-ink-muted">
+            Ask in your own words. Get a plain answer and what to do next.
+          </p>
         </div>
+        <SayItBox value={ask} onValue={setAsk} labelledBy="home-title" />
+      </section>
+
+      <div className="animate-fade-up" style={stagger(2, 60)}>
+        <QuestionCells onType={focusSearch} />
       </div>
 
-      <div className="animate-fade-up space-y-10 lg:space-y-14" style={stagger(9, 80)}>
-        <StopTheSpiral />
+      <div className="animate-fade-up space-y-6" style={stagger(3, 60)}>
         <HowItWorks />
+        <TrustRow />
+      </div>
+
+      <div className="animate-fade-up space-y-4 border-t border-line pt-6" style={stagger(4, 60)}>
+        <History />
+        <a
+          href={href({ name: "example", id: "hair" })}
+          className="inline-flex min-h-12 items-center gap-2 rounded-xl text-body font-semibold text-lamp underline-offset-4 hover:underline"
+        >
+          See what tracking looks like
+          <ArrowRight className="size-4" aria-hidden="true" />
+        </a>
+        <Pulse />
       </div>
     </div>
   );

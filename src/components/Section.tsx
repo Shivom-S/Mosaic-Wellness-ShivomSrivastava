@@ -12,7 +12,7 @@ interface SectionProps {
 export function Section({ title, children, className, style }: SectionProps) {
   return (
     <section className={cn("animate-fade-up", className)} style={style}>
-      {title && <h2 className="mb-3 font-display text-[22px] leading-snug text-ink">{title}</h2>}
+      {title && <h2 className="mb-3 font-display text-[1.375rem] leading-snug text-ink">{title}</h2>}
       {children}
     </section>
   );

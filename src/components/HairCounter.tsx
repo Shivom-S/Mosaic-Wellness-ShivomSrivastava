@@ -69,10 +69,10 @@ export function HairCounter({ value, onChange, onDone, variant = "check" }: Hair
     <div>
       {variant === "check" && (
         <header className="animate-fade-up">
-          <h1 className="font-display text-[28px] leading-[1.1] tracking-[-0.01em]">
+          <h1 className="font-display text-[1.75rem] leading-[1.1] tracking-[-0.01em]">
             Count tonight's <em className="italic text-lamp">hairs.</em>
           </h1>
-          <p className="mt-2 text-[13px] leading-snug text-ink-muted">
+          <p className="mt-2 text-small text-ink-muted">
             Check your pillow, your comb or brush, the shower drain, and anywhere else (clothes, floor). Tap once per
             hair.
           </p>
@@ -101,7 +101,7 @@ export function HairCounter({ value, onChange, onDone, variant = "check" }: Hair
                 on ? "bg-lamp text-on-lamp" : "text-ink-muted hover:bg-surface-2 hover:text-ink",
               )}
             >
-              <span className="text-[12px] font-medium leading-none">{l.label}</span>
+              <span className="text-small font-medium leading-none">{l.label}</span>
               <span className="num mt-1.5 font-display text-xl leading-none">{value[l.id]}</span>
             </button>
           );
@@ -111,10 +111,10 @@ export function HairCounter({ value, onChange, onDone, variant = "check" }: Hair
       {/* The running total sits right under the tabs, so it stays in view while you tap the pad. */}
       <div className="mt-3 flex items-center gap-4">
         <div aria-live="polite" aria-atomic="true" className="shrink-0">
-          <span key={total} className="num block animate-bump font-display text-[56px] leading-none tracking-tight">
+          <span key={total} className="num block animate-bump font-display text-[3.5rem] leading-none tracking-tight">
             {total}
           </span>
-          <span className="mt-1 block whitespace-nowrap text-[12px] leading-none text-ink-muted">
+          <span className="mt-1 block whitespace-nowrap text-small leading-none text-ink-muted">
             {total === 1 ? "hair" : "hairs"} counted so far
           </span>
         </div>
@@ -128,14 +128,14 @@ export function HairCounter({ value, onChange, onDone, variant = "check" }: Hair
                 style={{ left: `${marker}%` }}
               />
             </div>
-            <div className="relative mt-1 h-3.5 text-[11px] leading-none text-ink-faint">
+            <div className="relative mt-1 h-4 text-small leading-none text-ink-muted">
               <span className="absolute left-0">0</span>
               <span className="absolute left-1/4 -translate-x-1/2">50</span>
               <span className="absolute left-1/2 -translate-x-1/2">100</span>
               <span className="absolute right-0">200+</span>
             </div>
           </div>
-          <p className="mt-1 text-[12px] leading-snug text-ink-muted">Dermatologists: 50–100 a day is normal.</p>
+          <p className="mt-1 text-small text-ink-muted">Dermatologists: 50–100 a day is normal.</p>
         </div>
       </div>
 
@@ -171,7 +171,7 @@ export function HairCounter({ value, onChange, onDone, variant = "check" }: Hair
             {here === 0 && (
               <span className="absolute inset-0 flex flex-col items-center justify-center gap-1 text-ink-muted">
                 <span className="font-display text-2xl italic">tap per hair</span>
-                <span className="text-xs">{LOCATIONS.find((l) => l.id === loc)!.label.toLowerCase()}</span>
+                <span className="text-small">{LOCATIONS.find((l) => l.id === loc)!.label.toLowerCase()}</span>
               </span>
             )}
           </button>
@@ -199,7 +199,7 @@ export function HairCounter({ value, onChange, onDone, variant = "check" }: Hair
         )}
 
         {variant === "check" && (
-          <p className="mt-1 text-center text-[14px] text-ink-muted">
+          <p className="mt-1 text-center text-small text-ink-muted">
             Not near a drain right now?{" "}
             <button
               type="button"
@@ -208,7 +208,7 @@ export function HairCounter({ value, onChange, onDone, variant = "check" }: Hair
                 setFresh(null);
                 toast("Example count loaded. Do the real one tonight.");
               }}
-              className="inline-flex min-h-11 items-center font-medium text-lamp underline decoration-lamp/40 underline-offset-4"
+              className="inline-flex min-h-12 items-center font-medium text-lamp underline decoration-lamp/40 underline-offset-4"
             >
               Use an example count
             </button>

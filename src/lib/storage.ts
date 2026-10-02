@@ -30,7 +30,7 @@ export interface SavedCheck {
 
 export const keys = {
   theme: "theme",
-  comfort: "comfort",
+  textsize: "textsize",
   voiceNote: "voice-note",
   last: (id: WorryId) => `last:${id}`,
   track: (id: WorryId) => `track:${id}`,

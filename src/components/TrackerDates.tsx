@@ -58,8 +58,8 @@ export function TrackerDates({ entries, onChange }: TrackerDatesProps) {
             return (
               <li key={r.date} className="flex min-h-[64px] items-center justify-between gap-3 py-2 pl-4 pr-1.5">
                 <div className="min-w-0">
-                  <p className="text-[16px] font-medium text-ink">{longDate(r.date)}</p>
-                  <p className="mt-0.5 flex items-center gap-2 text-[13px] text-ink-muted">
+                  <p className="text-body font-medium text-ink">{longDate(r.date)}</p>
+                  <p className="mt-0.5 flex items-center gap-2 text-small text-ink-muted">
                     {status && <span aria-hidden="true" className={`size-2 rounded-full ${DOT_TONE[status].fill}`} />}
                     {r.gap === null ? "Earliest date" : `${r.gap} days after the one before`}
                     {status && <span className="sr-only">, {DOT_TONE[status].label}</span>}
@@ -69,7 +69,7 @@ export function TrackerDates({ entries, onChange }: TrackerDatesProps) {
                   type="button"
                   onClick={() => onChange(entries.filter((x) => x.date !== r.date))}
                   aria-label={`Remove ${longDate(r.date)}`}
-                  className="inline-flex size-11 shrink-0 items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-surface-2 hover:text-doctor"
+                  className="inline-flex size-12 shrink-0 items-center justify-center rounded-full text-ink-muted transition-colors hover:bg-surface-2 hover:text-doctor"
                 >
                   <X className="size-5" aria-hidden="true" />
                 </button>

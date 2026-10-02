@@ -16,13 +16,20 @@
     --line: 40 64 58;
     --ink: 238 240 234;
     --ink-muted: 162 179 173;
-    --ink-faint: 110 129 123;
+    --ink-faint: 135 153 147;
     --lamp: 111 209 188;
     --on-lamp: 6 32 26;
     --normal: 154 212 138;
     --watch: 235 184 102;
     --doctor: 239 138 120;
+    --fs-body: 1.0625rem;
     color-scheme: dark;
+  }
+
+  @media (min-width: 1024px) {
+    :root {
+      --fs-body: 1.125rem;
+    }
   }
 
   :root[data-theme="lamp"] {
@@ -32,35 +39,18 @@
     --line: 214 222 216;
     --ink: 16 37 30;
     --ink-muted: 74 94 87;
-    --ink-faint: 125 142 136;
-    --lamp: 23 128 109;
+    --ink-faint: 92 108 102;
+    --lamp: 16 112 95;
     --on-lamp: 255 255 255;
-    --normal: 46 125 60;
-    --watch: 156 98 8;
-    --doctor: 184 64 46;
+    --normal: 38 112 52;
+    --watch: 140 88 6;
+    --doctor: 172 56 40;
     color-scheme: light;
   }
 
-  /* "Easier on the eyes": bigger type, dimmer ink, no stars or glows, no motion. */
-  :root[data-comfort="on"] {
-    font-size: 18px;
-  }
-  :root[data-comfort="on"]:not([data-theme="lamp"]) {
-    --ink: 207 214 208;
-    --ink-muted: 150 166 160;
-  }
-  :root[data-comfort="on"] .starfield,
-  :root[data-comfort="on"] .lamp-glow {
-    display: none !important;
-  }
-  :root[data-comfort="on"] *,
-  :root[data-comfort="on"] *::before,
-  :root[data-comfort="on"] *::after {
-    animation-duration: 0.001ms !important;
-    animation-delay: 0s !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.001ms !important;
-    box-shadow: none !important;
+  /* "Larger text": every size is in rem, so one root size scales the whole interface. */
+  :root[data-textsize="large"] {
+    font-size: 20px;
   }
 
   * {
@@ -76,6 +66,8 @@
   body {
     @apply bg-bg text-ink font-sans antialiased;
     font-feature-settings: "ss01", "cv11";
+    font-size: var(--fs-body);
+    line-height: 1.55;
     min-height: 100dvh;
     overscroll-behavior-y: none;
   }

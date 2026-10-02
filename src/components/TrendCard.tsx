@@ -36,7 +36,7 @@ export function TrendCard({ trend, worryId, className, style }: TrendCardProps) 
     >
       <span
         className={cn(
-          "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.09em]",
+          "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-small font-bold uppercase tracking-[0.05em]",
           tone.pill,
         )}
       >
@@ -44,9 +44,9 @@ export function TrendCard({ trend, worryId, className, style }: TrendCardProps) 
         {trend.verdict === "early" ? toneLabel("early") : `Trend: ${toneLabel(trend.verdict)}`}
       </span>
 
-      <h3 className="mt-3.5 font-display text-[26px] leading-[1.15] text-ink">{trend.headline}</h3>
+      <h3 className="mt-3.5 font-display text-[1.625rem] leading-[1.15] text-ink">{trend.headline}</h3>
 
-      <div className="mt-2.5 space-y-2 text-[15px] leading-relaxed text-ink-muted">
+      <div className="mt-2.5 space-y-2 text-body text-ink-muted">
         {trend.detail.map((d, i) => (
           <p key={i}>{d}</p>
         ))}
@@ -62,7 +62,7 @@ export function TrendCard({ trend, worryId, className, style }: TrendCardProps) 
             startLabel={label(series[0].label)}
             endLabel={series.length > 1 ? label(series[series.length - 1].label) : undefined}
           />
-          <p className="mt-1 text-center text-[11px] text-ink-faint">{caption}</p>
+          <p className="mt-1 text-center text-small text-ink-muted">{caption}</p>
         </div>
       )}
     </section>
