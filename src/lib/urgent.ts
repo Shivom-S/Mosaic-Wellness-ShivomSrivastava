@@ -22,3 +22,7 @@ export function useUrgentOpen() {
     () => false,
   );
 }
+
+// Same emergency patterns the server uses, so urgent help opens even offline or if the AI fails.
+const EMERGENCY = /(chest[^.]{0,20}(pain|pressure|tight|hurt|heavy|crush|squeez)|(pain|pressure|tight|hurt)[^.]{0,20}chest|heart attack|seene? (mein|me) dard|can'?t breathe|trouble breathing|breathless|faint|passed out|unconscious|seizure|stroke|face droop|slurred|severe bleeding|won'?t stop bleeding|suicid|kill myself|self[- ]harm|end my life|overdose|anaphyla|throat (closing|swelling)|saans nahi)/i;
+export const looksUrgent = (text: string) => EMERGENCY.test(text);

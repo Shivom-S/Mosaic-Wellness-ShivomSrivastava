@@ -6,6 +6,7 @@ import express from "express";
 import cors from "cors";
 import pg from "pg";
 import { aiProvider, understand } from "./intake.js";
+import { geminiModel } from "./gemini.js";
 import { aiAnswer, aiQuestions, checkProvider, looksUrgent, sanitizeCheck } from "./aicheck.js";
 
 const PORT = process.env.PORT || 3000;
@@ -75,7 +76,7 @@ app.get("/", (_req, res) => res.json({ ok: true, service: "1am-api", ai: Boolean
 app.get("/api/health", async (_req, res) => {
   try {
     await pool.query("select 1");
-    res.json({ ok: true, db: true, ai: aiProvider, checks: checkProvider });
+    res.json({ ok: true, db: true, ai: aiProvider, checks: checkProvider, model: geminiModel() });
   } catch {
     res.status(503).json({ ok: false, db: false, ai: aiProvider, checks: checkProvider });
   }
@@ -105,6 +106,7 @@ app.post("/api/understand", async (req, res) => {
   const text = typeof req.body?.text === "string" ? req.body.text.trim().slice(0, 500) : "";
   if (text.length < 3) return res.status(400).json({ error: "invalid" });
   try {
+    if (looksUrgent(text)) return res.json({ worry: null, urgent: true, answers: {}, echo: "", triage: { topic: "", specialist: "emergency care" } });
     const out = await understand(text);
     if (!out) return res.status(502).json({ error: "unreadable" });
     res.json(out);

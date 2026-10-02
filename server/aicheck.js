@@ -4,8 +4,8 @@
 //   2. answer(text, check, answers) -> a result in the same shape as the curated ones
 // Safety rails are enforced in code, not just in the prompt.
 import { SPECIALISTS } from "./intake.js";
+import { gemini } from "./gemini.js";
 
-const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
 const CLAUDE_MODEL = process.env.ANTHROPIC_MODEL || "claude-haiku-4-5";
 export const checkProvider = process.env.GEMINI_API_KEY ? "gemini" : process.env.ANTHROPIC_API_KEY ? "claude" : null;
 
@@ -87,19 +87,7 @@ ${VOICE}`;
 
 // ---------- model calls ----------
 async function callGemini(system, user, schema) {
-  const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`, {
-    method: "POST",
-    headers: { "content-type": "application/json", "x-goog-api-key": process.env.GEMINI_API_KEY },
-    body: JSON.stringify({
-      systemInstruction: { parts: [{ text: system }] },
-      contents: [{ role: "user", parts: [{ text: user }] }],
-      generationConfig: { responseMimeType: "application/json", responseSchema: schema, temperature: 0.3, maxOutputTokens: 2048, thinkingConfig: { thinkingBudget: 0 } },
-    }),
-    signal: AbortSignal.timeout(20000),
-  });
-  if (!res.ok) throw new Error(`gemini ${res.status} ${(await res.text()).slice(0, 200)}`);
-  const data = await res.json();
-  return data.candidates?.[0]?.content?.parts?.map((p) => p.text || "").join("") ?? "";
+  return gemini({ system, user, schema, temperature: 0.3, maxOutputTokens: 2048, timeoutMs: 20000 });
 }
 
 async function callClaude(system, user) {
@@ -129,7 +117,7 @@ async function callModel(system, user, schema) {
 const txt = (v, max) => (typeof v === "string" ? v.replace(/\s+/g, " ").trim().slice(0, max) : "");
 const arr = (v) => (Array.isArray(v) ? v : []);
 
-const EMERGENCY = /(chest (pain|pressure|tight)|can'?t breathe|trouble breathing|breathless|faint|passed out|unconscious|seizure|stroke|face droop|slurred|severe bleeding|won'?t stop bleeding|suicid|kill myself|self[- ]harm|end my life|overdose|anaphyla|throat (closing|swelling)|seene mein dard|saans nahi)/i;
+const EMERGENCY = /(chest[^.]{0,20}(pain|pressure|tight|hurt|heavy|crush|squeez)|(pain|pressure|tight|hurt)[^.]{0,20}chest|heart attack|seene? (mein|me) dard|can'?t breathe|trouble breathing|breathless|faint|passed out|unconscious|seizure|stroke|face droop|slurred|severe bleeding|won'?t stop bleeding|suicid|kill myself|self[- ]harm|end my life|overdose|anaphyla|throat (closing|swelling)|seene mein dard|saans nahi)/i;
 
 export function looksUrgent(s) {
   return EMERGENCY.test(String(s || ""));

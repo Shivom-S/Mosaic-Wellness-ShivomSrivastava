@@ -5,7 +5,7 @@ import { aiQuestions, aiStatus, checksStatus, understand } from "@/lib/api";
 import { clearAllPrefill, sanitizeAnswers, savePrefill } from "@/lib/prefill";
 import { href } from "@/lib/route";
 import { keys, session, store, type AiPending } from "@/lib/storage";
-import { openUrgent } from "@/lib/urgent";
+import { looksUrgent, openUrgent } from "@/lib/urgent";
 import { cn } from "@/lib/utils";
 
 const PROMPTS = ["baal bahut gir rahe hain…", "period 10 days late…", "raat ko neend nahi aati…", "my son only eats rice…"];
@@ -152,6 +152,7 @@ export function SayItBox({ value, onValue, request }: SayItBoxProps) {
 
   const run = async (text: string) => {
     if (!text.trim()) return;
+    if (looksUrgent(text)) openUrgent();
     const mine = ++token.current;
     lastText.current = text;
     clearAllPrefill();

@@ -3,6 +3,7 @@
 // medical advice; the deterministic engine in the app still decides every verdict.
 // Supports ANTHROPIC_API_KEY (Claude) or GEMINI_API_KEY (Google AI Studio).
 import { readFileSync } from "node:fs";
+import { gemini } from "./gemini.js";
 
 const SCHEMA = JSON.parse(readFileSync(new URL("./worries.json", import.meta.url), "utf8"));
 const IDS = new Set(SCHEMA.map((w) => w.id));
@@ -74,20 +75,7 @@ async function callClaude(text) {
 }
 
 async function callGemini(text) {
-  const model = process.env.GEMINI_MODEL || "gemini-2.5-flash";
-  const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
-    method: "POST",
-    headers: { "content-type": "application/json", "x-goog-api-key": process.env.GEMINI_API_KEY },
-    body: JSON.stringify({
-      systemInstruction: { parts: [{ text: SYSTEM }] },
-      contents: [{ role: "user", parts: [{ text }] }],
-      generationConfig: { responseMimeType: "application/json", temperature: 0, maxOutputTokens: 400 },
-    }),
-    signal: AbortSignal.timeout(8000),
-  });
-  if (!res.ok) throw new Error(`gemini ${res.status} ${await res.text()}`);
-  const data = await res.json();
-  return data.candidates?.[0]?.content?.parts?.map((p) => p.text || "").join("") ?? "";
+  return gemini({ system: SYSTEM, user: text, temperature: 0, maxOutputTokens: 400, timeoutMs: 8000 });
 }
 
 export async function understand(text) {
