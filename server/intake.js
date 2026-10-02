@@ -12,7 +12,7 @@ export const SPECIALISTS = [
   "a urologist", "emergency care",
 ];
 
-export const aiProvider = process.env.ANTHROPIC_API_KEY ? "claude" : process.env.GEMINI_API_KEY ? "gemini" : null;
+export const aiProvider = process.env.GEMINI_API_KEY ? "gemini" : process.env.ANTHROPIC_API_KEY ? "claude" : null;
 
 const SYSTEM = `You are the intake step of 1AM, a health-worry app. Classify the user's message. Output ONLY a JSON object, no prose.
 Schema: {"worry": one of ${JSON.stringify([...IDS])} or null, "urgent": boolean, "answers": {questionId: [optionId,...]}, "echo": string, "triage": null or {"topic": string, "specialist": one of ${JSON.stringify(SPECIALISTS)}}}

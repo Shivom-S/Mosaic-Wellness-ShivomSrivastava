@@ -6,6 +6,7 @@ import express from "express";
 import cors from "cors";
 import pg from "pg";
 import { aiProvider, understand } from "./intake.js";
+import { aiAnswer, aiQuestions, checkProvider, looksUrgent, sanitizeCheck } from "./aicheck.js";
 
 const PORT = process.env.PORT || 3000;
 const ORIGINS = (process.env.ALLOWED_ORIGIN || "").split(",").map((s) => s.trim()).filter(Boolean);
@@ -18,6 +19,7 @@ const pool = new pg.Pool({
 });
 
 const WORRIES = JSON.parse(readFileSync(new URL("./worries.json", import.meta.url), "utf8")).map((w) => w.id);
+const RATED = [...WORRIES, "ai"]; // "ai" = an AI-built check for an uncovered worry
 const VERDICTS = ["normal", "watch", "doctor"];
 const ANSWERS = ["yes", "sort-of", "no"];
 const TONES = ["cautious", "vague", "right"];
@@ -38,7 +40,7 @@ async function migrate() {
 
 const app = express();
 app.disable("x-powered-by");
-app.use(express.json({ limit: "2kb" }));
+app.use(express.json({ limit: "16kb" }));
 app.use(
   cors({
     origin: (origin, cb) => cb(null, !origin || ORIGINS.length === 0 || ORIGINS.includes(origin)),
@@ -61,16 +63,16 @@ app.get("/", (_req, res) => res.json({ ok: true, service: "1am-api", ai: Boolean
 app.get("/api/health", async (_req, res) => {
   try {
     await pool.query("select 1");
-    res.json({ ok: true, db: true, ai: aiProvider });
+    res.json({ ok: true, db: true, ai: aiProvider, checks: checkProvider });
   } catch {
-    res.status(503).json({ ok: false, db: false, ai: aiProvider });
+    res.status(503).json({ ok: false, db: false, ai: aiProvider, checks: checkProvider });
   }
 });
 
 app.post("/api/ratings", async (req, res) => {
   if (limited(req)) return res.status(429).json({ error: "slow down" });
   const { worry, verdict, answer, tone } = req.body || {};
-  if (!WORRIES.includes(worry) || !VERDICTS.includes(verdict) || !ANSWERS.includes(answer))
+  if (!RATED.includes(worry) || !VERDICTS.includes(verdict) || !ANSWERS.includes(answer))
     return res.status(400).json({ error: "invalid" });
   if (tone != null && !TONES.includes(tone)) return res.status(400).json({ error: "invalid" });
   try {
@@ -100,6 +102,39 @@ app.post("/api/understand", async (req, res) => {
   }
 });
 
+// AI-built checks (Gemini/Claude) for worries without curated rules.
+// Text and answers are used for the request only; nothing here is stored or logged.
+const aiText = (req) => (typeof req.body?.text === "string" ? req.body.text.trim().slice(0, 500) : "");
+
+app.post("/api/ai/questions", async (req, res) => {
+  if (!checkProvider) return res.status(503).json({ error: "ai off" });
+  if (limited(req)) return res.status(429).json({ error: "slow down" });
+  const text = aiText(req);
+  if (text.length < 3) return res.status(400).json({ error: "invalid" });
+  if (looksUrgent(text)) return res.json({ health: true, urgent: true, questions: [] });
+  try {
+    res.json(await aiQuestions(text));
+  } catch (e) {
+    console.error("ai questions error", String(e).slice(0, 200));
+    res.status(502).json({ error: "ai" });
+  }
+});
+
+app.post("/api/ai/answer", async (req, res) => {
+  if (!checkProvider) return res.status(503).json({ error: "ai off" });
+  if (limited(req)) return res.status(429).json({ error: "slow down" });
+  const text = aiText(req);
+  const check = sanitizeCheck(req.body?.check);
+  const answers = req.body?.answers && typeof req.body.answers === "object" ? req.body.answers : {};
+  if (!check) return res.status(400).json({ error: "invalid" });
+  try {
+    res.json(await aiAnswer(text, check, answers));
+  } catch (e) {
+    console.error("ai answer error", String(e).slice(0, 200));
+    res.status(502).json({ error: "ai" });
+  }
+});
+
 // Aggregate "pulse" over the last 30 days. Only counts, never rows.
 app.get("/api/pulse", async (_req, res) => {
   try {
@@ -112,7 +147,7 @@ app.get("/api/pulse", async (_req, res) => {
     const byWorry = Object.fromEntries(WORRIES.map((w) => [w, 0]));
     const byVerdict = Object.fromEntries(VERDICTS.map((v) => [v, 0]));
     for (const r of rows) {
-      byWorry[r.worry] += r.n;
+      if (r.worry in byWorry) byWorry[r.worry] += r.n;
       byVerdict[r.verdict] += r.n;
     }
     res.set("Cache-Control", "public, max-age=60");
