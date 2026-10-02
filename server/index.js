@@ -9,7 +9,12 @@ import { aiProvider, understand } from "./intake.js";
 import { aiAnswer, aiQuestions, checkProvider, looksUrgent, sanitizeCheck } from "./aicheck.js";
 
 const PORT = process.env.PORT || 3000;
-const ORIGINS = (process.env.ALLOWED_ORIGIN || "").split(",").map((s) => s.trim()).filter(Boolean);
+// Origins allowed to call the API. Trailing slashes are ignored, and Vercel preview
+// URLs for this project (mosaic-wellness-shivom-srivastava-*.vercel.app) are allowed too.
+const norm = (o) => String(o || "").trim().replace(/\/+$/, "").toLowerCase();
+const ORIGINS = (process.env.ALLOWED_ORIGIN || "").split(",").map(norm).filter(Boolean);
+const PREVIEW = /^https:\/\/mosaic-wellness-shivom-srivastava[a-z0-9-]*\.vercel\.app$/;
+const originOk = (origin) => !origin || ORIGINS.length === 0 || ORIGINS.includes(norm(origin)) || PREVIEW.test(norm(origin));
 if (!process.env.DATABASE_URL) console.warn("DATABASE_URL is not set. Add a PostgreSQL database in Replit.");
 
 const pool = new pg.Pool({
@@ -38,12 +43,19 @@ async function migrate() {
   `);
 }
 
+// Short, key-free description of an AI failure, so it can be diagnosed from the browser.
+const safeReason = (e) =>
+  String(e?.message || e)
+    .replace(/AIza[0-9A-Za-z_-]{20,}/g, "[key]")
+    .replace(/sk-ant-[0-9A-Za-z_-]+/g, "[key]")
+    .slice(0, 220);
+
 const app = express();
 app.disable("x-powered-by");
 app.use(express.json({ limit: "16kb" }));
 app.use(
   cors({
-    origin: (origin, cb) => cb(null, !origin || ORIGINS.length === 0 || ORIGINS.includes(origin)),
+    origin: (origin, cb) => cb(null, originOk(origin)),
     methods: ["GET", "POST"],
   }),
 );
@@ -97,8 +109,8 @@ app.post("/api/understand", async (req, res) => {
     if (!out) return res.status(502).json({ error: "unreadable" });
     res.json(out);
   } catch (e) {
-    console.error("ai error", String(e).slice(0, 200));
-    res.status(502).json({ error: "ai" });
+    console.error("ai error", String(e).slice(0, 300));
+    res.status(502).json({ error: "ai", reason: safeReason(e) });
   }
 });
 
@@ -115,8 +127,8 @@ app.post("/api/ai/questions", async (req, res) => {
   try {
     res.json(await aiQuestions(text));
   } catch (e) {
-    console.error("ai questions error", String(e).slice(0, 200));
-    res.status(502).json({ error: "ai" });
+    console.error("ai questions error", String(e).slice(0, 300));
+    res.status(502).json({ error: "ai", reason: safeReason(e) });
   }
 });
 
@@ -130,8 +142,8 @@ app.post("/api/ai/answer", async (req, res) => {
   try {
     res.json(await aiAnswer(text, check, answers));
   } catch (e) {
-    console.error("ai answer error", String(e).slice(0, 200));
-    res.status(502).json({ error: "ai" });
+    console.error("ai answer error", String(e).slice(0, 300));
+    res.status(502).json({ error: "ai", reason: safeReason(e) });
   }
 });
 
