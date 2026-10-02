@@ -4,7 +4,7 @@
 //   2. answer(text, check, answers) -> a result in the same shape as the curated ones
 // Safety rails are enforced in code, not just in the prompt.
 import { SPECIALISTS } from "./intake.js";
-import { gemini } from "./gemini.js";
+import { geminiJSON } from "./gemini.js";
 
 const CLAUDE_MODEL = process.env.ANTHROPIC_MODEL || "claude-haiku-4-5";
 export const checkProvider = process.env.GEMINI_API_KEY ? "gemini" : process.env.ANTHROPIC_API_KEY ? "claude" : null;
@@ -86,10 +86,6 @@ Never mention being an AI, never cite sources or URLs, never recommend products 
 ${VOICE}`;
 
 // ---------- model calls ----------
-async function callGemini(system, user, schema) {
-  return gemini({ system, user, schema, temperature: 0.3, maxOutputTokens: 2048, timeoutMs: 20000 });
-}
-
 async function callClaude(system, user) {
   const res = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
@@ -107,10 +103,23 @@ async function callClaude(system, user) {
   return data.content?.map((c) => c.text || "").join("") ?? "";
 }
 
-async function callModel(system, user, schema) {
-  const raw = checkProvider === "gemini" ? await callGemini(system, user, schema) : await callClaude(system, user);
+const parseJSON = (raw) => {
   const m = String(raw).match(/\{[\s\S]*\}/);
   return JSON.parse(m ? m[0] : raw);
+};
+
+// Gemini first (it falls back across its own models), then Claude if a key is set.
+async function callModel(system, user, schema) {
+  if (process.env.GEMINI_API_KEY) {
+    try {
+      const { data } = await geminiJSON({ system, user, schema, temperature: 0.3, maxOutputTokens: 2048, timeoutMs: 12000, budgetMs: 23000 });
+      return data;
+    } catch (e) {
+      if (!process.env.ANTHROPIC_API_KEY) throw e;
+      console.warn("ai check: gemini failed, trying claude:", String(e).slice(0, 160));
+    }
+  }
+  return parseJSON(await callClaude(system, user));
 }
 
 // ---------- validation helpers ----------

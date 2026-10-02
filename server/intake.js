@@ -3,7 +3,7 @@
 // medical advice; the deterministic engine in the app still decides every verdict.
 // Supports ANTHROPIC_API_KEY (Claude) or GEMINI_API_KEY (Google AI Studio).
 import { readFileSync } from "node:fs";
-import { gemini } from "./gemini.js";
+import { geminiJSON } from "./gemini.js";
 
 const SCHEMA = JSON.parse(readFileSync(new URL("./worries.json", import.meta.url), "utf8"));
 const IDS = new Set(SCHEMA.map((w) => w.id));
@@ -74,12 +74,17 @@ async function callClaude(text) {
   return data.content?.map((c) => c.text || "").join("") ?? "";
 }
 
-async function callGemini(text) {
-  return gemini({ system: SYSTEM, user: text, temperature: 0, maxOutputTokens: 400, timeoutMs: 8000 });
-}
-
+// Gemini first (with its own model-to-model fallback), then Claude if a key exists.
 export async function understand(text) {
   if (!aiProvider) return null;
-  const raw = aiProvider === "claude" ? await callClaude(text) : await callGemini(text);
-  return clean(raw);
+  if (process.env.GEMINI_API_KEY) {
+    try {
+      const { data } = await geminiJSON({ system: SYSTEM, user: text, temperature: 0, maxOutputTokens: 400, timeoutMs: 4000, budgetMs: 5500 });
+      return clean(JSON.stringify(data));
+    } catch (e) {
+      if (!process.env.ANTHROPIC_API_KEY) throw e;
+      console.warn("understand: gemini failed, trying claude:", String(e).slice(0, 160));
+    }
+  }
+  return clean(await callClaude(text));
 }
