@@ -205,7 +205,8 @@ export async function aiAnswer(text, check, answers) {
     .filter((f) => f.text)
     .slice(0, 6);
   // If they ticked any warning sign, never call it "normal".
-  if (redFlags.some((f) => f.hit) && verdict === "normal") verdict = "watch";
+  // If they ticked any warning sign, it is worth a doctor visit (same rule as the curated checks).
+  if (redFlags.some((f) => f.hit)) verdict = "doctor";
   if (urgent) verdict = "doctor";
   let whoToSee = SPECIALISTS.includes(raw.whoToSee) ? raw.whoToSee : undefined;
   if (urgent) whoToSee = "emergency care";

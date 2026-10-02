@@ -21,8 +21,8 @@ export function TrackerDates({ entries, onChange }: TrackerDatesProps) {
   const add = (e: React.FormEvent) => {
     e.preventDefault();
     if (!value) return;
-    if (value > today) return void toast("That date hasn't happened yet.");
-    if (entries.some((x) => x.date === value)) return void toast("That date is already on the list.");
+    if (value > today) return void toast("That date hasn't happened yet. Pick today or an earlier day.");
+    if (entries.some((x) => x.date === value)) return void toast("That date is already on the list. Pick a different one.");
     onChange([...entries, { date: value, values: {} }].sort((a, b) => a.date.localeCompare(b.date)));
     setValue("");
   };

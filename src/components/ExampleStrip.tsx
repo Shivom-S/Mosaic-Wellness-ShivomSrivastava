@@ -38,7 +38,7 @@ export function ExampleStrip() {
               href={href({ name: "example", id: w.id })}
               className="flex h-full flex-col rounded-[22px] border border-line bg-surface p-4 transition-colors hover:border-lamp/50 hover:bg-surface-2 active:scale-[0.99]"
             >
-              <span className="self-start rounded-full border border-dashed border-ink-faint px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.1em] text-ink-muted">
+              <span className="self-start rounded-full border border-dashed border-ink-faint px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.09em] text-ink-muted">
                 {label}
               </span>
               <span className="mt-3 text-[15px] font-semibold leading-snug text-ink">{w.title}</span>

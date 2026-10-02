@@ -31,7 +31,7 @@ export function Example({ id }: { id: WorryId }) {
             <ArrowLeft className="size-5" aria-hidden="true" />
           </a>
 
-          <p className="mt-2 inline-flex items-center rounded-full border border-dashed border-ink-faint px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-[0.1em] text-ink-muted">
+          <p className="mt-2 inline-flex items-center rounded-full border border-dashed border-ink-faint px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-[0.09em] text-ink-muted">
             Example · not a real person
           </p>
           <h1 className="mt-4 font-display text-[32px] italic leading-[1.1] tracking-[-0.01em] lg:text-[44px]">{persona}</h1>
@@ -56,7 +56,7 @@ export function Example({ id }: { id: WorryId }) {
               Start my own check →
             </a>
             <div>
-              <p className="mb-2.5 text-[13px] font-medium uppercase tracking-[0.08em] text-ink-faint">See other examples</p>
+              <p className="mb-2.5 text-[13px] font-bold uppercase tracking-[0.09em] text-ink-faint">See other examples</p>
               <div className="flex flex-wrap gap-2">
                 {WORRIES.filter((w) => w.id !== id).map((w) => (
                   <a

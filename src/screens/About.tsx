@@ -67,7 +67,7 @@ export function About() {
             ],
             [
               "Rules, not a chatbot.",
-              "Every verdict is deterministic and traceable to a cited threshold. It never makes up a statistic, never breaks without an API key, and the same answers always give the same verdict.",
+              "Every verdict in the seven reviewed checks is deterministic and traceable to a cited threshold. They never make up a statistic, never break without an API key, and the same answers always give the same verdict. AI-written checks are the one exception, and they say so.",
             ],
             [
               "Seven worries, done properly.",
@@ -75,7 +75,7 @@ export function About() {
             ],
             [
               "Private by design.",
-              "No account and no analytics. Answers and counts never leave the phone. The only thing ever sent is an optional, anonymous \"did this help?\" rating, which feeds a live pulse. Phones get shared, so there's a one-tap wipe.",
+              "No account and no analytics. Answers and counts stay on the phone, with one exception: if you ask for an AI-written check, your words and answers go to an AI model to write it. Beyond that, the only thing ever sent is an optional, anonymous \"did this help?\" rating, which feeds a live pulse. Phones get shared, so there's a one-tap wipe.",
             ],
             [
               "Cut on purpose:",
@@ -115,9 +115,14 @@ export function About() {
           (contrarian, first-principles, expansionist, outsider, executor) debated what to build, then anonymously
           reviewed each other. That council's most popular “big idea”, an operator dashboard, was the one I cut.
           Second, as a <Em>builder</Em>: Claude Code wrote the interface from my spec, while every threshold and every
-          line of medical copy was checked against the sources listed below. If an AI key is connected, the &apos;what&apos;s on your mind?&apos; box uses a model only to route
-          your words to the right check and pre-fill the answers it&apos;s sure about. It never writes the medical
-          advice. Every verdict still comes from the cited rules.
+          line of medical copy was checked against the sources listed below. If an AI key is connected, the &apos;what&apos;s on your mind?&apos; box uses a model to route
+          your words to the right check and pre-fill the answers it&apos;s sure about. In the seven reviewed checks it
+          never writes the medical advice. Every verdict there still comes from the cited rules.
+        </p>
+        <p>
+          The seven checks are hand-built from cited sources. For anything else, Gemini writes the questions and the
+          answer in the same format, it's clearly labelled as AI-written, and a code-level safety net always routes
+          emergency signs to urgent help.
         </p>
       </Block>
 
@@ -144,7 +149,7 @@ export function About() {
           </a>
         </div>
         <a href={href({ name: "home" })} className={btn("primary", "mt-4 w-full")}>
-          Try it →
+          Start a check →
         </a>
       </Section>
     </div>

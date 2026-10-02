@@ -1,8 +1,10 @@
-import { ArrowRight, Search } from "lucide-react";
-import { POPULAR, WORRIES, WORRY, type WorryId } from "@/content";
+import { ArrowRight, Search, type LucideIcon } from "lucide-react";
+import { POPULAR, WORRIES, type Verdict, type WorryId } from "@/content";
+import { IconBadge } from "@/components/IconBadge";
 import { relativeTime } from "@/lib/clock";
+import { AI_ICON, WORRY_ICON } from "@/lib/icons";
 import { href } from "@/lib/route";
-import { loadLast, useStoreVersion } from "@/lib/storage";
+import { loadAiHistory, loadLast, setAiLast, useStoreVersion, type AiSaved } from "@/lib/storage";
 import { TONE, stagger, toneLabel } from "@/lib/ui";
 
 /** Grouped example questions. Tapping one fills the box and goes straight to that worry's check. */
@@ -86,12 +88,34 @@ export function HowItWorks() {
   );
 }
 
-/** "Your midnight questions": every saved check, newest first. Nothing leaves this phone. */
+interface HistoryItem {
+  key: string;
+  title: string;
+  icon: LucideIcon;
+  verdict: Verdict;
+  at: number;
+  to: string;
+  ai?: AiSaved;
+}
+
+/** "Your midnight questions": every saved check (and up to 5 AI-written ones), newest first. Nothing leaves this phone. */
 export function History() {
   useStoreVersion(); // re-read after a wipe or a new check
-  const items = WORRIES.map((w) => ({ w, saved: loadLast(w.id) }))
-    .filter((x) => x.saved !== null)
-    .sort((a, b) => b.saved!.at - a.saved!.at);
+  const items: HistoryItem[] = [
+    ...WORRIES.flatMap((w) => {
+      const saved = loadLast(w.id);
+      return saved ? [{ key: w.id, title: w.title, icon: WORRY_ICON[w.id], verdict: saved.result.verdict, at: saved.at, to: href({ name: "result", id: w.id }) }] : [];
+    }),
+    ...loadAiHistory().map((e) => ({
+      key: `ai-${e.at}`,
+      title: e.check.title,
+      icon: AI_ICON,
+      verdict: e.result.verdict,
+      at: e.at,
+      to: href({ name: "ai-result" }),
+      ai: e,
+    })),
+  ].sort((a, b) => b.at - a.at);
 
   return (
     <section aria-labelledby="history-title">
@@ -100,29 +124,41 @@ export function History() {
       </h2>
       {items.length === 0 ? (
         <p className="mt-3 rounded-[22px] border border-dashed border-line px-5 py-4 text-[14px] leading-relaxed text-ink-muted">
-          Your midnight questions will live here. Only on this phone.
+          This is where your finished checks land, only on this phone. Pick a worry above to start one.
         </p>
       ) : (
         <ul className="mt-3 space-y-2.5">
-          {items.map(({ w, saved }) => {
-            const tone = TONE[saved!.result.verdict];
+          {items.map((it) => {
+            const tone = TONE[it.verdict];
             const Icon = tone.icon;
             return (
-              <li key={w.id}>
+              <li key={it.key}>
                 <a
-                  href={href({ name: "result", id: w.id })}
+                  href={it.to}
+                  // an AI result is shown from "1am:ai:last", so make this entry the one on screen first
+                  onClick={it.ai ? () => setAiLast(it.ai!) : undefined}
                   className="group flex min-h-[64px] items-center justify-between gap-3 rounded-[22px] border border-line bg-surface px-4 py-3 transition-colors hover:border-lamp/50 hover:bg-surface-2"
                 >
-                  <span className="min-w-0">
-                    <span className="block truncate text-[15px] font-semibold text-ink">{WORRY[w.id].title}</span>
-                    <span className="mt-0.5 block text-[13px] text-ink-muted">{relativeTime(saved!.at)}</span>
+                  <span className="flex min-w-0 items-center gap-3">
+                    <IconBadge icon={it.icon} />
+                    <span className="min-w-0">
+                      <span className="block truncate text-[15px] font-semibold text-ink">{it.title}</span>
+                      <span className="mt-0.5 block text-[13px] text-ink-muted">
+                        {relativeTime(it.at)}
+                        {it.ai && (
+                          <span className="ml-2 inline-flex items-center rounded-full border border-ink-faint/60 px-2 py-px text-[10px] font-bold uppercase tracking-[0.09em] text-ink-muted">
+                            AI-written
+                          </span>
+                        )}
+                      </span>
+                    </span>
                   </span>
                   <span className="flex shrink-0 items-center gap-2">
                     <span
-                      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.06em] ${tone.pill}`}
+                      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.09em] ${tone.pill}`}
                     >
                       <Icon className="size-3.5" strokeWidth={2.75} aria-hidden="true" />
-                      {toneLabel(saved!.result.verdict)}
+                      {toneLabel(it.verdict)}
                     </span>
                     <ArrowRight
                       className="size-4 text-ink-faint transition-transform group-hover:translate-x-0.5 group-hover:text-lamp"

@@ -1,4 +1,7 @@
 import { VERDICT_COPY, type Verdict, type Worry } from "@/content";
+
+/** What the card and the share text need from a worry. An AI-built check passes id "ai". */
+export type ShareTarget = Pick<Worry, "title" | "whisper"> & { id: Worry["id"] | "ai" };
 import { rng } from "./rng";
 
 // The share card is the one place in the app where raw hex is allowed: it's painted on a
@@ -92,7 +95,7 @@ function crescent(size: number) {
  * Paint the share card. It deliberately knows nothing about the person: no counts, no answers.
  * Just the worry's title, the verdict's label and a generic line.
  */
-export async function renderCard(worry: Worry, verdict: Verdict): Promise<Blob> {
+export async function renderCard(worry: ShareTarget, verdict: Verdict): Promise<Blob> {
   await loadFonts();
 
   const canvas = document.createElement("canvas");
@@ -223,8 +226,8 @@ export async function renderCard(worry: Worry, verdict: Verdict): Promise<Blob> 
 
 export const shareUrl = () => window.location.origin + window.location.pathname;
 
-export const shareText = (worry: Worry, verdict: Verdict) =>
-  `Checked “${worry.whisper}” on 1AM: ${VERDICT_COPY[verdict].label}. Honest answers, cited sources, no sign-up: ${shareUrl()}`;
+export const shareText = (worry: ShareTarget, verdict: Verdict) =>
+  `Checked “${worry.whisper}” on 1AM: ${VERDICT_COPY[verdict].label}. Honest answers, ${worry.id === "ai" ? "" : "cited sources, "}no sign-up: ${shareUrl()}`;
 
 export async function copyText(text: string): Promise<boolean> {
   try {
@@ -251,7 +254,7 @@ export async function copyText(text: string): Promise<boolean> {
 export type ShareOutcome = "shared" | "whatsapp" | "copied" | "cancelled" | "failed";
 
 /** Native share sheet with the card attached → WhatsApp link → clipboard. */
-export async function shareResult(worry: Worry, verdict: Verdict, card?: Blob | null): Promise<ShareOutcome> {
+export async function shareResult(worry: ShareTarget, verdict: Verdict, card?: Blob | null): Promise<ShareOutcome> {
   const text = shareText(worry, verdict);
   const url = shareUrl();
 

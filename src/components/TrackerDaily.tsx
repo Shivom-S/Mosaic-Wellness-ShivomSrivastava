@@ -158,9 +158,9 @@ export function TrackerDaily({ worryId, tracker, today, prefill, onSave }: Track
 
       <div>
         <button type="submit" disabled={!complete} className={btn("primary", "w-full")}>
-          {today ? "Update today" : "Save today"}
+          {today ? "Update today's log" : "Log today"}
         </button>
-        {!complete && <p className="mt-2.5 text-center text-[13px] text-ink-faint">Fill in each one to save today.</p>}
+        {!complete && <p className="mt-2.5 text-center text-[13px] text-ink-faint">Fill in each one to log today.</p>}
       </div>
 
       <Drawer open={padOpen} onOpenChange={setPadOpen} shouldScaleBackground={false}>

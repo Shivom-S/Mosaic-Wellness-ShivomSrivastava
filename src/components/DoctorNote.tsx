@@ -1,37 +1,38 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { ChevronDown, Copy } from "lucide-react";
-import type { Result, Worry } from "@/content";
+import type { Result } from "@/content";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { copyText } from "@/lib/share";
 import { btn } from "@/lib/ui";
 import { cn } from "@/lib/utils";
 
 interface DoctorNoteProps {
-  worry: Worry;
-  result: Result;
+  title: string;
+  result: Pick<Result, "doctorNote">;
   at: number;
   /** Open by default when the verdict is "worth a doctor visit". */
   defaultOpen?: boolean;
+  /** The note says so when an AI wrote the answer behind it. */
+  ai?: boolean;
 }
 
-export function DoctorNote({ worry, result, at, defaultOpen = false }: DoctorNoteProps) {
+export function DoctorNote({ title, result, at, defaultOpen = false, ai = false }: DoctorNoteProps) {
   const [open, setOpen] = useState(defaultOpen);
   const when = new Date(at).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
 
   const text = [
-    `Summary for my doctor: ${worry.title}`,
+    `Summary for my doctor: ${title}`,
     `Checked on ${when}`,
     "",
     ...result.doctorNote.map((l) => `- ${l}`),
     "",
-    "Self-reported on 1AM. This is not a diagnosis.",
+    ai ? "Self-reported on 1AM, with an AI-written answer. This is not a diagnosis." : "Self-reported on 1AM. This is not a diagnosis.",
   ].join("\n");
 
   const copy = async () => {
     const ok = await copyText(text);
-    toast(ok ? "Copied. Paste it into WhatsApp or show it at the clinic." : "Couldn't copy. Select the text and copy it by hand.");
-  };
+    toast(ok ? "Copied. Paste it into WhatsApp or show it at the clinic." : "Couldn't copy. Select the text and copy it by hand.");  };
 
   return (
     <Collapsible open={open} onOpenChange={setOpen} className="overflow-hidden rounded-[28px] border border-line bg-surface">
@@ -58,7 +59,7 @@ export function DoctorNote({ worry, result, at, defaultOpen = false }: DoctorNot
           </ul>
           <button type="button" onClick={copy} className={btn("secondary", "mt-5 w-full")}>
             <Copy className="size-4" aria-hidden="true" />
-            Copy
+            Copy summary
           </button>
         </div>
       </CollapsibleContent>

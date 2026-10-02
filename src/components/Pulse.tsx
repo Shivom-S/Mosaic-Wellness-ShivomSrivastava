@@ -17,7 +17,7 @@ export function Pulse({ className = "" }: { className?: string }) {
 
   return (
     <section className={`rounded-[28px] border border-line bg-surface p-5 ${className}`} aria-label="1AM pulse">
-      <p className="text-[12px] font-semibold uppercase tracking-[0.14em] text-lamp">Live · last {pulse.windowDays} days</p>
+      <p className="text-[12px] font-bold uppercase tracking-[0.09em] text-lamp">Live · last {pulse.windowDays} days</p>
       <h2 className="mt-1.5 font-display text-[20px] leading-snug">
         {pulse.total} answer{pulse.total === 1 ? "" : "s"} rated
         {pulse.helpedPct !== null && (

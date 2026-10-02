@@ -13,6 +13,8 @@ import { Result } from "@/screens/Result";
 const About = lazy(() => import("@/screens/About").then((m) => ({ default: m.About })));
 const Example = lazy(() => import("@/screens/Example").then((m) => ({ default: m.Example })));
 const Track = lazy(() => import("@/screens/Track").then((m) => ({ default: m.Track })));
+const AiCheck = lazy(() => import("@/screens/AiCheck").then((m) => ({ default: m.AiCheck })));
+const AiResult = lazy(() => import("@/screens/AiResult").then((m) => ({ default: m.AiResult })));
 
 const titleFor = (r: Route) => {
   switch (r.name) {
@@ -20,6 +22,10 @@ const titleFor = (r: Route) => {
       return "1AM: honest answers to 1 AM health worries";
     case "about":
       return "Why I built this · 1AM";
+    case "ai-check":
+      return "Your check · 1AM";
+    case "ai-result":
+      return "Your answer · 1AM";
     default:
       return `${WORRY[r.id].title} · 1AM`;
   }
@@ -31,6 +37,10 @@ function Screen({ route }: { route: Route }) {
       return <Home />;
     case "about":
       return <About />;
+    case "ai-check":
+      return <AiCheck />;
+    case "ai-result":
+      return <AiResult />;
     case "check":
       return <Check id={route.id} />;
     case "result":
@@ -73,7 +83,7 @@ export default function App() {
         onComfort={setComfort}
         onHome={route.name === "home"}
         stars={route.name === "home" ? "full" : "sides"}
-        footer={route.name !== "check"}
+        footer={route.name !== "check" && route.name !== "ai-check"}
       >
         <div key={key}>
           <Suspense fallback={<div aria-hidden="true" className="min-h-[50dvh]" />}>

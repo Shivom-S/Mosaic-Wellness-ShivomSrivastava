@@ -1,5 +1,7 @@
 import { ArrowRight } from "lucide-react";
 import type { DailyEntry, Worry } from "@/content";
+import { IconBadge } from "@/components/IconBadge";
+import { WORRY_ICON } from "@/lib/icons";
 import { href } from "@/lib/route";
 import { trackStatus } from "@/lib/track";
 import { plural } from "@/lib/ui";
@@ -42,8 +44,11 @@ export function WorryCard({ worry, entries, style, className, wide }: WorryCardP
         <p className={cn("pr-12 font-display text-[26px] italic leading-[1.12] tracking-[-0.01em] text-ink lg:text-[23px]", !wide && "lg:min-h-[5.1rem]")}>
           “{worry.whisper}”
         </p>
-        <h2 className="mt-2 text-[12px] font-bold uppercase tracking-[0.09em] text-lamp">{worry.title}</h2>
-        <p className="mt-1 max-w-[34ch] text-[14px] leading-snug text-ink-muted">{worry.blurb}</p>
+        <div className="mt-3 flex items-center gap-2.5">
+          <IconBadge icon={WORRY_ICON[worry.id]} />
+          <h2 className="text-[12px] font-bold uppercase tracking-[0.09em] text-lamp">{worry.title}</h2>
+        </div>
+        <p className="mt-2 max-w-[34ch] text-[14px] leading-snug text-ink-muted">{worry.blurb}</p>
       </a>
 
       {pill && (

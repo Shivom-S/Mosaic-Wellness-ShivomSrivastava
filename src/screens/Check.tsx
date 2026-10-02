@@ -138,13 +138,13 @@ export function Check({ id }: { id: WorryId }) {
       {showStrip && (
         <div className="mb-6 animate-fade-up rounded-2xl border border-lamp/30 bg-lamp/10 px-4 py-3">
           <div className="flex items-start gap-2">
-            <p className="min-w-0 flex-1 pt-1 text-[13px] font-semibold uppercase tracking-[0.08em] text-lamp">
+            <p className="min-w-0 flex-1 pt-1 text-[13px] font-bold uppercase tracking-[0.09em] text-lamp">
               From what you wrote
             </p>
             <button
               type="button"
               onClick={() => setStripOpen(false)}
-              aria-label="Dismiss"
+              aria-label="Dismiss this note"
               className="-mr-2 -mt-2 inline-flex size-11 shrink-0 items-center justify-center rounded-full text-ink-muted transition-colors hover:text-ink"
             >
               <X className="size-4" aria-hidden="true" />
@@ -156,7 +156,7 @@ export function Check({ id }: { id: WorryId }) {
             onClick={edit}
             className="-mb-1 mt-1 inline-flex min-h-11 items-center text-[14px] font-semibold text-lamp underline-offset-4 hover:underline"
           >
-            Edit
+            Change my answers
           </button>
         </div>
       )}
@@ -189,14 +189,14 @@ export function Check({ id }: { id: WorryId }) {
           </div>
           <div className="mt-8 space-y-1">
             <button type="button" onClick={() => finish(answers, count)} className={btn("primary", "w-full")}>
-              See what this means →
+              See my answer →
             </button>
             <button
               type="button"
               onClick={edit}
               className="inline-flex min-h-11 w-full items-center justify-center text-[14px] font-semibold text-lamp underline-offset-4 hover:underline"
             >
-              Edit
+              Change my answers
             </button>
           </div>
         </div>

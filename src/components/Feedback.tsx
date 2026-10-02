@@ -33,7 +33,7 @@ const chip = (on: boolean) =>
   );
 
 /** "Did this answer what you needed?" Saved to this phone only: nothing is sent anywhere. */
-export function Feedback({ worryId, verdict }: { worryId: WorryId; verdict: Verdict }) {
+export function Feedback({ worryId, verdict }: { worryId: WorryId | "ai"; verdict: Verdict }) {
   const [saved, setSaved] = useState<Saved | null>(() => store.get<Saved>(keys.feedback(worryId)));
 
   const save = (next: Saved) => {

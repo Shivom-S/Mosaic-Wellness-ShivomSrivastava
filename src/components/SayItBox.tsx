@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { ArrowRight, LifeBuoy, Mic } from "lucide-react";
 import { WORRIES, WORRY, matchWorry, type WorryId } from "@/content";
-import { aiStatus, understand } from "@/lib/api";
+import { aiQuestions, aiStatus, checksStatus, understand } from "@/lib/api";
 import { clearAllPrefill, sanitizeAnswers, savePrefill } from "@/lib/prefill";
 import { href } from "@/lib/route";
-import { keys, store } from "@/lib/storage";
+import { keys, session, store, type AiPending } from "@/lib/storage";
 import { openUrgent } from "@/lib/urgent";
 import { cn } from "@/lib/utils";
 
@@ -49,6 +49,26 @@ interface Heard {
 
 type Triage = { topic: string; specialist: string };
 
+/** What came back from trying to build an AI check. */
+type AiNote = { kind: "fail" } | { kind: "notHealth" } | { kind: "urgent"; canContinue: boolean };
+
+function CheckChips() {
+  return (
+    <ul className="mt-2 flex flex-wrap gap-2">
+      {WORRIES.map((w) => (
+        <li key={w.id}>
+          <a
+            href={href({ name: "check", id: w.id })}
+            className="inline-flex min-h-11 items-center rounded-full border border-line px-3.5 text-[13px] font-medium text-ink transition hover:border-lamp/60 hover:bg-surface-2"
+          >
+            {w.title}
+          </a>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 /** The main input: type it, or say it. Keyword matching on the phone; an optional AI only routes and pre-fills. */
 export function SayItBox({ value, onValue, request }: SayItBoxProps) {
   const [prompt, setPrompt] = useState(0);
@@ -59,6 +79,11 @@ export function SayItBox({ value, onValue, request }: SayItBoxProps) {
   const [aiOn, setAiOn] = useState(false);
   const [reading, setReading] = useState(false);
   const [heard, setHeard] = useState<Heard | null>(null);
+  const [checksOn, setChecksOn] = useState(false);
+  /** Set while an AI check is being written: the topic if we know it, else "". */
+  const [building, setBuilding] = useState<string | null>(null);
+  const [aiNote, setAiNote] = useState<AiNote | null>(null);
+  const lastText = useRef("");
   const token = useRef(0);
   const rec = useRef<RecognitionLike | null>(null);
   const supported = useRef(speechCtor() !== null).current;
@@ -74,6 +99,7 @@ export function SayItBox({ value, onValue, request }: SayItBoxProps) {
   useEffect(() => {
     let live = true;
     void aiStatus().then((ai) => live && setAiOn(Boolean(ai)));
+    void checksStatus().then((c) => live && setChecksOn(Boolean(c)));
     return () => {
       live = false;
     };
@@ -86,15 +112,57 @@ export function SayItBox({ value, onValue, request }: SayItBoxProps) {
       setMatch(null);
       setReading(false);
       setHeard(null);
+      setBuilding(null);
+      setAiNote(null);
     }
   }, [value]);
+
+  /** Write a check for exactly what was typed. Success goes straight to the questions. */
+  const buildAi = async (text: string, topic = "") => {
+    const mine = ++token.current;
+    setMatch(null);
+    setHeard(null);
+    setAiNote(null);
+    setBuilding(topic);
+    const got = await aiQuestions(text);
+    if (mine !== token.current) return; // the box changed while we waited
+    setBuilding(null);
+    if (!got) return setAiNote({ kind: "fail" });
+    if (!got.health) return setAiNote({ kind: "notHealth" });
+    if (got.urgent) openUrgent();
+    if (got.check) {
+      const pending: AiPending = { text: text.trim().slice(0, 500), check: got.check, createdAt: Date.now() };
+      session.set(keys.aiCheck, pending);
+      if (!got.urgent) {
+        window.location.hash = href({ name: "ai-check" });
+        return;
+      }
+    }
+    setAiNote({ kind: "urgent", canContinue: Boolean(got.check) });
+  };
+
+  /** Nothing in the seven reviewed checks fits. With AI checks on, write one; otherwise say so honestly. */
+  const noMatch = async (text: string, mine: number, triage?: Triage) => {
+    const on = await checksStatus();
+    if (mine !== token.current) return;
+    if (on) return buildAi(text, triage?.topic ?? "");
+    if (triage) setHeard({ echo: "", filled: 0, triage });
+    setMatch("none");
+  };
 
   const run = async (text: string) => {
     if (!text.trim()) return;
     const mine = ++token.current;
+    lastText.current = text;
     clearAllPrefill();
     setHeard(null);
-    const local = () => setMatch(matchWorry(text) ?? "none");
+    setBuilding(null);
+    setAiNote(null);
+    const local = () => {
+      const m = matchWorry(text);
+      if (m) setMatch(m);
+      else void noMatch(text, mine);
+    };
 
     if (!(await aiStatus())) return local();
     if (mine !== token.current) return;
@@ -106,10 +174,7 @@ export function SayItBox({ value, onValue, request }: SayItBoxProps) {
     if (!got) return local();
 
     if (got.urgent || got.triage?.specialist === "emergency care") openUrgent();
-    if (!got.worry) {
-      if (got.triage) setHeard({ echo: "", filled: 0, triage: got.triage });
-      return setMatch("none");
-    }
+    if (!got.worry) return noMatch(text, mine, got.triage ?? undefined);
     const answers = sanitizeAnswers(got.worry, got.answers);
     savePrefill(got.worry, answers);
     setHeard({ echo: got.echo, filled: Object.keys(answers).length });
@@ -183,6 +248,8 @@ export function SayItBox({ value, onValue, request }: SayItBoxProps) {
     setMatch(null);
     setReading(false);
     setHeard(null);
+    setBuilding(null);
+    setAiNote(null);
     setListening(true);
     // Safety net: some browsers never fire onend if the mic hangs.
     const stopTimer = window.setTimeout(() => {
@@ -224,6 +291,8 @@ export function SayItBox({ value, onValue, request }: SayItBoxProps) {
               setMatch(null);
               setReading(false);
               setHeard(null);
+              setBuilding(null);
+              setAiNote(null);
             }}
             placeholder={listening ? "Listening… say it however it comes out" : PROMPTS[prompt]}
             autoComplete="off"
@@ -255,7 +324,7 @@ export function SayItBox({ value, onValue, request }: SayItBoxProps) {
             )}
             <button
               type="submit"
-              aria-label="Find my worry"
+              aria-label="Find the right check"
               disabled={!value.trim()}
               className="inline-flex size-11 touch-manipulation items-center justify-center rounded-full bg-lamp text-on-lamp transition hover:brightness-110 active:scale-95 disabled:bg-surface-2 disabled:text-ink-faint"
             >
@@ -274,9 +343,11 @@ export function SayItBox({ value, onValue, request }: SayItBoxProps) {
           "English, Hinglish, however it comes out at 1 AM."
         )}
       </p>
-      {aiOn && (
+      {(aiOn || checksOn) && (
         <p className="mt-1.5 text-[13px] leading-snug text-ink-muted">
-          Typed text is sent to an AI model just to understand it. 1AM doesn't store it.
+          {checksOn
+            ? "Typed text is sent to an AI model to understand it and, if none of our checks fit, to write one. 1AM doesn't store it."
+            : "Typed text is sent to an AI model just to understand it. 1AM doesn't store it."}
         </p>
       )}
       {voiceNote && (
@@ -288,22 +359,80 @@ export function SayItBox({ value, onValue, request }: SayItBoxProps) {
       <div aria-live="polite">
         {voiceMsg && <p className="mt-3 text-[14px] leading-snug text-watch">{voiceMsg}</p>}
         {reading && <p className="mt-3 text-[15px] leading-snug text-ink-muted">Reading what you wrote…</p>}
-        {match && match !== "none" && (
-          <a
-            href={href({ name: "check", id: match })}
-            className="mt-3 flex animate-fade-up items-center justify-between gap-3 rounded-2xl border border-lamp/40 bg-lamp/10 px-4 py-3.5 text-[16px] leading-snug transition-colors hover:bg-lamp/20"
-          >
-            <span className="min-w-0">
-              Sounds like <b className="font-semibold">{WORRY[match].title}</b>.
-              {heard?.echo && <span className="mt-1 block italic text-ink-muted">We heard: “{heard.echo}”</span>}
-              {heard && heard.filled > 0 && (
-                <span className="mt-1 block text-[14px] text-ink-muted">
-                  We've filled in {heard.filled} {heard.filled === 1 ? "answer" : "answers"} from what you wrote. You can change them.
-                </span>
+        {building !== null && (
+          <p className="mt-3 flex items-center gap-2.5 text-[15px] leading-snug text-ink-muted">
+            <span aria-hidden="true" className="size-2 shrink-0 animate-pulse rounded-full bg-lamp" />
+            Writing a few questions about {building || "this"}…
+          </p>
+        )}
+        {aiNote?.kind === "notHealth" && (
+          <p className="mt-3 animate-fade-up text-[15px] leading-relaxed text-ink-muted">
+            That doesn't sound like a health worry. Try describing what you're feeling.
+          </p>
+        )}
+        {aiNote?.kind === "fail" && (
+          <div className="mt-3 animate-fade-up rounded-2xl border border-line bg-surface px-4 py-4 text-[15px] leading-relaxed text-ink-muted">
+            <p>Unable to build a check right now. Try again, or pick one of the checks below.</p>
+            <button
+              type="button"
+              onClick={() => void buildAi(lastText.current)}
+              className="mt-3 inline-flex min-h-11 items-center rounded-full bg-lamp px-5 text-[14px] font-semibold text-on-lamp transition hover:brightness-110 active:scale-95"
+            >
+              Try again
+            </button>
+            <CheckChips />
+          </div>
+        )}
+        {aiNote?.kind === "urgent" && (
+          <div className="mt-3 animate-fade-up rounded-2xl border border-doctor/40 bg-doctor/10 px-4 py-4 text-[15px] leading-relaxed text-ink">
+            <p>If this could be an emergency, don't wait on an app. Call 112 or get to a doctor now.</p>
+            <div className="mt-2 flex flex-wrap gap-x-5">
+              <button
+                type="button"
+                onClick={openUrgent}
+                className="inline-flex min-h-11 items-center gap-2 text-[14px] font-semibold text-doctor underline-offset-4 hover:underline"
+              >
+                <LifeBuoy className="size-4" aria-hidden="true" />
+                See the urgent-help signs
+              </button>
+              {aiNote.canContinue && (
+                <a
+                  href={href({ name: "ai-check" })}
+                  className="inline-flex min-h-11 items-center text-[14px] font-semibold text-lamp underline-offset-4 hover:underline"
+                >
+                  Continue with a few questions
+                </a>
               )}
-            </span>
-            <span className="shrink-0 font-semibold text-lamp">Start the check →</span>
-          </a>
+            </div>
+          </div>
+        )}
+        {match && match !== "none" && (
+          <div className="mt-3 animate-fade-up">
+            <a
+              href={href({ name: "check", id: match })}
+              className="flex items-center justify-between gap-3 rounded-2xl border border-lamp/40 bg-lamp/10 px-4 py-3.5 text-[16px] leading-snug transition-colors hover:bg-lamp/20"
+            >
+              <span className="min-w-0">
+                Sounds like <b className="font-semibold">{WORRY[match].title}</b>.
+                {heard?.echo && <span className="mt-1 block italic text-ink-muted">We heard: “{heard.echo}”</span>}
+                {heard && heard.filled > 0 && (
+                  <span className="mt-1 block text-[14px] text-ink-muted">
+                    We've filled in {heard.filled} {heard.filled === 1 ? "answer" : "answers"} from what you wrote. You can change them.
+                  </span>
+                )}
+              </span>
+              <span className="shrink-0 font-semibold text-lamp">Start the check →</span>
+            </a>
+            {checksOn && (
+              <button
+                type="button"
+                onClick={() => void buildAi(lastText.current)}
+                className="mt-1 inline-flex min-h-11 items-center text-left text-[14px] leading-snug text-ink-muted underline decoration-line underline-offset-4 transition-colors hover:text-ink"
+              >
+                Not quite it? Build a check for exactly what I wrote
+              </button>
+            )}
+          </div>
         )}
         {match === "none" && heard?.triage && (
           <div className="mt-3 animate-fade-up rounded-2xl border border-line bg-surface px-4 py-4 text-[15px] leading-relaxed text-ink-muted">
@@ -326,18 +455,7 @@ export function SayItBox({ value, onValue, request }: SayItBoxProps) {
               See the urgent-help signs
             </button>
             <p className="mt-2 text-[13px] font-semibold text-ink-muted">Check one of these instead</p>
-            <ul className="mt-2 flex flex-wrap gap-2">
-              {WORRIES.map((w) => (
-                <li key={w.id}>
-                  <a
-                    href={href({ name: "check", id: w.id })}
-                    className="inline-flex min-h-11 items-center rounded-full border border-line px-3.5 text-[13px] font-medium text-ink transition hover:border-lamp/60 hover:bg-surface-2"
-                  >
-                    {w.title}
-                  </a>
-                </li>
-              ))}
-            </ul>
+            <CheckChips />
           </div>
         )}
         {match === "none" && !heard?.triage && (
@@ -352,7 +470,7 @@ export function SayItBox({ value, onValue, request }: SayItBoxProps) {
               className="mt-2 inline-flex min-h-11 items-center gap-2 rounded-full border border-doctor/60 px-4 text-[14px] font-semibold text-doctor transition hover:bg-doctor/10"
             >
               <LifeBuoy className="size-4" aria-hidden="true" />
-              Need help right now?
+              See the urgent-help signs
             </button>
           </div>
         )}

@@ -36,7 +36,7 @@ export function TrendCard({ trend, worryId, className, style }: TrendCardProps) 
     >
       <span
         className={cn(
-          "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.08em]",
+          "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.09em]",
           tone.pill,
         )}
       >

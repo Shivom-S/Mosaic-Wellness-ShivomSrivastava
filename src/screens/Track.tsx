@@ -144,7 +144,7 @@ export function Track({ id }: { id: WorryId }) {
               Log tonight's entry and the chart starts to draw. {tracker.kind === "daily" ? `${tracker.days} ${tracker.unitLabel}s turns a guess into a pattern.` : ""}
             </p>
             <a href={href({ name: "example", id })} className="mt-3 inline-flex min-h-11 items-center text-[15px] font-medium text-lamp underline underline-offset-4">
-              See what it looks like
+              See an example trend
             </a>
           </div>
         )}

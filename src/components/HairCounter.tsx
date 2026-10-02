@@ -189,7 +189,7 @@ export function HairCounter({ value, onChange, onDone, variant = "check" }: Hair
 
       <div className={cn("flex flex-col items-center gap-1", variant === "check" ? "mt-5" : "mt-4")}>
         <button type="button" disabled={total === 0} onClick={() => onDone(value)} className={btn("primary", "w-full")}>
-          {variant === "check" ? "That's everything →" : "Use this count →"}
+          {variant === "check" ? "Continue →" : "Use this count →"}
         </button>
 
         {variant === "check" && total === 0 && (

@@ -75,7 +75,7 @@ export function Shell({ children, theme, onTheme, comfort, onComfort, onHome, st
             >
               <LifeBuoy className="size-[18px]" aria-hidden="true" />
               <span className="lg:hidden">Urgent</span>
-              <span className="hidden lg:inline">Need urgent help?</span>
+              <span className="hidden lg:inline">Get urgent help</span>
             </button>
             <ThemeMenu theme={theme} onTheme={onTheme} comfort={comfort} onComfort={onComfort} />
           </nav>
